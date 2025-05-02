@@ -6,22 +6,6 @@ const bcrypt = require('bcryptjs')
 
 app.use(express.json())
 
-app.get('/usuarios', async (req, res) => {
-    const usuarios = await prisma.usuarios.findMany()
-    res.json(usuarios)
-})
-
-app.get('/usuarios/:id', async (req, res) => {
-    const { id } = req.params
-    const usuario = await prisma.usuarios.findUnique({
-        where: { id: Number(id) }
-    })
-    if (!usuario) {
-        return res.status(404).json({ error: 'Usuario no encontrado' })
-    }
-    res.json(usuario)
-})
-
 app.post('/usuarios', async (req, res) => {
     const { nombre, email, password } = req.body
     const passwordHasheado = await bcrypt.hash(password, 10)
@@ -48,6 +32,64 @@ app.post('/usuarios/login', async (req, res) => {
         return res.status(401).json({ error: 'Contraseña incorrecta' })
     }
     res.json({ id: usuario.id, nombre: usuario.nombre, email: usuario.email })
+})
+
+app.get('/usuarios', async (req, res) => {
+    const usuarios = await prisma.usuarios.findMany()
+    res.json(usuarios)
+})
+
+app.get('/usuarios/:id', async (req, res) => {
+    const { id } = req.params
+    const usuario = await prisma.usuarios.findUnique({
+        where: { id: Number(id) }
+    })
+    if (!usuario) {
+        return res.status(404).json({ error: 'Usuario no encontrado' })
+    }
+    res.json(usuario)
+})
+
+app.delete('/usuarios/:id', async (req, res) => {
+    const { id } = req.params
+    const usuario = await prisma.usuarios.delete({
+        where: { id: Number(id) }
+    })
+    res.json(usuario)
+})
+
+app.get('/usuarios/:id/mascotas', async (req, res) => {
+    const { id } = req.params
+    const usuario = await prisma.usuarios.findUnique({
+        where: { id: Number(id) },
+        include: { mascotas: true }
+    })
+    if (!usuario) {
+        return res.status(404).json({ error: 'Usuario no encontrado' })
+    }
+    res.json(usuario.mascotas)
+})
+
+app.post('/mascotas', async (req, res) => {
+    const { nombre, raza, id_user } = req.body
+    const nuevaMascota = await prisma.mascotas.create({
+        data: {
+            nombre,
+            raza,
+            usuario: {
+                connect: { id: id_user }
+            }
+        }
+    })
+    res.json(nuevaMascota)
+})
+
+app.delete('/mascotas/:id', async (req, res) => {
+    const { id } = req.params
+    const mascota = await prisma.mascotas.delete({
+        where: { id: Number(id) }
+    })
+    res.json(mascota)
 })
 
 const PORT = process.env.PORT || 3000

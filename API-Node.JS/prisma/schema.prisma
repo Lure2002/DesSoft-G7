@@ -18,4 +18,13 @@ model usuarios {
   nombre String
   email String @unique
   hash_contrasenia String
+  mascotas mascotas[]
+}
+
+model mascotas {
+  id     Int    @id @default(autoincrement())
+  nombre String
+  raza String
+  id_user Int
+  usuario usuarios @relation(fields: [id_user], references: [id])
 }
