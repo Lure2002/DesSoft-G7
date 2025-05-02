@@ -11,6 +11,17 @@ app.get('/usuarios', async (req, res) => {
     res.json(usuarios)
 })
 
+app.get('/usuarios/:id', async (req, res) => {
+    const { id } = req.params
+    const usuario = await prisma.usuarios.findUnique({
+        where: { id: Number(id) }
+    })
+    if (!usuario) {
+        return res.status(404).json({ error: 'Usuario no encontrado' })
+    }
+    res.json(usuario)
+})
+
 app.post('/usuarios', async (req, res) => {
     const { nombre, email, password } = req.body
     const passwordHasheado = await bcrypt.hash(password, 10)
