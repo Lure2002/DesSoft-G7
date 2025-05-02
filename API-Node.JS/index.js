@@ -92,5 +92,13 @@ app.delete('/mascotas/:id', async (req, res) => {
     res.json(mascota)
 })
 
+app.delete('/usuarios/:id/mascotas', async (req, res) => {
+    const { id } = req.params
+    const mascotas = await prisma.mascotas.deleteMany({
+        where: { id_user: Number(id) }
+    })
+    res.json(mascotas)
+})
+
 const PORT = process.env.PORT || 3000
 app.listen(PORT, () => console.log(`API escuchando en http://localhost:${PORT}`))
