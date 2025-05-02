@@ -26,5 +26,5 @@ model mascotas {
   nombre String
   raza String
   id_user Int
-  usuario usuarios @relation(fields: [id_user], references: [id])
+  usuario usuarios @relation(fields: [id_user], references: [id], onDelete: Cascade)
 }
