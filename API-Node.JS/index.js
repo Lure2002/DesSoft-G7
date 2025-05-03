@@ -48,7 +48,10 @@ app.post('/usuarios', async (req, res) => {
 app.post('/usuarios/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    const usuario = await prisma.usuarios.findUnique({ where: { email } });
+    const usuario = await prisma.usuarios.findUnique({ 
+      where: { email },
+      include: { mascotas: true } 
+    });
 
     if (!usuario) {
       return response(res, 404, 'Not Found', { error: 'Usuario no encontrado' });
@@ -60,7 +63,7 @@ app.post('/usuarios/login', async (req, res) => {
     }
 
     return response(res, 200, 'OK', {
-      id: usuario.id, nombre: usuario.nombre, email: usuario.email
+      id: usuario.id, nombre: usuario.nombre, email: usuario.email, mascotas: usuario.mascotas
     });
   } catch (error) {
     return response(res, 500, 'Internal Server Error', { error: error.message });
