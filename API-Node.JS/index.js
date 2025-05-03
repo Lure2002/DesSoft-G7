@@ -6,6 +6,16 @@ const bcrypt = require('bcryptjs')
 
 app.use(express.json())
 
+app.use(cors({
+    origin: (origin, callback) => {
+        if (!origin || origin.startsWith('http://localhost')
+        ) {
+            return callback(null, true)
+        }
+        return callback(new Error('No autorizado por CORS'))
+    }
+}))
+
 app.post('/usuarios', async (req, res) => {
     const { nombre, email, password } = req.body
     const passwordHasheado = await bcrypt.hash(password, 10)
