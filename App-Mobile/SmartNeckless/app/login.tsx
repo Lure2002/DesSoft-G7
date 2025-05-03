@@ -1,31 +1,48 @@
-import React, { useState } from 'react'
-import { View, TextInput, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native'
-import { useAuth } from '../context/AuthContext'
-import API from '../services/apiSmartNeckless.js'
-import { Redirect } from 'expo-router'
+import React, { useState } from 'react';
+import { View, TextInput, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { useAuth } from '../context/AuthContext';
+import API from '../services/apiSmartNeckless.js';
+import { Redirect } from 'expo-router';
+import Spinner from '@/components/Spinner';
 
 export default function LoginScreen() {
-    console.log('login xd')
-    const { login, user } = useAuth()
-    const [isSignUp, setIsSignUp] = useState(false)
-    const [nombre, setNombre] = useState('')
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
+    const { login, user } = useAuth();
+    const [isSignUp, setIsSignUp] = useState(false);
+    const [nombre, setNombre] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
 
     const handleSubmit = async () => {
+        setLoading(true);
+        setErrorMessage('');
+
         try {
             if (isSignUp) {
-                login(await API.crearUsuario(nombre, email, password))
+                const response = await API.crearUsuario(nombre, email, password);
+                if (response.statusCode === 201) {
+                    login(response.body);
+                } else {
+                    setErrorMessage(`${response.reasonPhrase} - ${response.body?.error || 'Error al crear usuario'}`);
+                }
             } else {
-                login(await API.loginrUsuario(email, password))
+                const response = await API.loginrUsuario(email, password);
+                if (response.statusCode === 200) {
+                    login(response.body);
+                } else {
+                    setErrorMessage(`${response.reasonPhrase} - ${response.body?.error || 'Error al iniciar sesión'}`);
+                }
             }
         } catch (error) {
-            Alert.alert('Error', 'Hubo un problema. Intentá de nuevo.')
+            setErrorMessage('Hubo un problema inesperado. Intentá de nuevo.');
+        } finally {
+            setLoading(false);
         }
-    }
-    if (user) {
-        return <Redirect href="/(tabs)" />
-    }
+    };
+
+    if (user) return <Redirect href="/(tabs)" />;
+    if (loading) return <Spinner size="large" />;
     return (
         <View style={styles.container}>
             <Text style={styles.title}>{isSignUp ? 'Registrarse' : 'Iniciar Sesión'}</Text>
@@ -36,6 +53,7 @@ export default function LoginScreen() {
                     value={nombre}
                     onChangeText={setNombre}
                     style={styles.input}
+                    placeholderTextColor="#aaa"
                 />
             )}
 
@@ -46,6 +64,7 @@ export default function LoginScreen() {
                 onChangeText={setEmail}
                 style={styles.input}
                 autoCapitalize="none"
+                placeholderTextColor="#aaa"
             />
 
             <TextInput
@@ -54,7 +73,10 @@ export default function LoginScreen() {
                 value={password}
                 onChangeText={setPassword}
                 style={styles.input}
+                placeholderTextColor="#aaa"
             />
+
+            {!!errorMessage && <Text style={styles.error}>{errorMessage}</Text>}
 
             <TouchableOpacity style={styles.button} onPress={handleSubmit}>
                 <Text style={styles.buttonText}>{isSignUp ? 'Crear cuenta' : 'Ingresar'}</Text>
@@ -66,7 +88,7 @@ export default function LoginScreen() {
                 </Text>
             </TouchableOpacity>
         </View>
-    )
+    );
 }
 
 const styles = StyleSheet.create({
@@ -75,14 +97,13 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         padding: 24,
         backgroundColor: '#25292e',
-        color: '#fff',
     },
     title: {
         fontSize: 26,
         fontWeight: 'bold',
         marginBottom: 24,
         textAlign: 'center',
-        color: '#fff'
+        color: '#fff',
     },
     input: {
         borderWidth: 1,
@@ -107,4 +128,10 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         color: '#007aff',
     },
-})
+    error: {
+        color: '#ff4d4f',
+        marginBottom: 10,
+        textAlign: 'center',
+        fontSize: 14,
+    },
+});
