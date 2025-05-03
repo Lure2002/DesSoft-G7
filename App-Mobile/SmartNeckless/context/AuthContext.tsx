@@ -1,10 +1,19 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react'
 
-interface User {
-  id: number
-  nombre: string
-  email: string
+interface Mascota {
+  id: number;
+  nombre: string;
+  raza: string;
+  id_user: number;
 }
+
+interface User {
+  id: number;
+  nombre: string;
+  email: string;
+  mascotas: Mascota[];
+}
+
 
 interface AuthContextType {
   user: User | null

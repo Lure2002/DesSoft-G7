@@ -1,17 +1,21 @@
 import React from 'react';
-import { View, ActivityIndicator, StyleSheet, useColorScheme } from 'react-native';
+import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { useTheme } from '@/context/ThemeContext';
 
 interface SpinnerProps {
   size?: 'small' | 'large';
 }
 
 const Spinner: React.FC<SpinnerProps> = ({ size = 'large' }) => {
-  const colorScheme = useColorScheme();
-  const color = colorScheme === 'dark' ? '#FFFFFF' : '#000000';
+  const theme = useTheme();
+  const isDark = theme === 'dark';
+
+  const backgroundColor = isDark ? '#25292e' : '#f2f2f2';
+  const spinnerColor = isDark ? '#ffffff' : '#000000';
 
   return (
-    <View style={styles.container}>
-      <ActivityIndicator size={size} color={color} />
+    <View style={[styles.container, { backgroundColor }]}>
+      <ActivityIndicator size={size} color={spinnerColor} />
     </View>
   );
 };
