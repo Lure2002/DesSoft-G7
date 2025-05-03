@@ -8,14 +8,7 @@ const prisma = new PrismaClient();
 
 app.use(express.json());
 
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || origin.startsWith('http://localhost')) {
-      return callback(null, true);
-    }
-    return callback(new Error('No autorizado por CORS'));
-  }
-}));
+app.use(cors());
 
 // Función para formato de respuesta estándar
 const response = (res, statusCode, reasonPhrase, body) => {
