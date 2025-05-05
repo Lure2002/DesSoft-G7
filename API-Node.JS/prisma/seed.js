@@ -21,7 +21,6 @@ async function main() {
       { nombre: 'Bulldog', id_especie: perro.id },
       { nombre: 'Beagle', id_especie: perro.id },
       { nombre: 'Poodle', id_especie: perro.id },
-      { nombre: 'Chihuahua', id_especie: perro.id },
       { nombre: 'Boxer', id_especie: perro.id },
       { nombre: 'Dachshund', id_especie: perro.id },
       { nombre: 'Siberian Husky', id_especie: perro.id },
