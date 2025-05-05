@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
-import bucket from './bucketFirebase';
+import { bucket } from './firebase';
 import multer from 'multer';
 
 const app = express();
