@@ -57,9 +57,9 @@ export default function Profile() {
       } else {
         Alert.alert('Error', res.body?.error || 'No se pudo subir la imagen');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error al subir imagen:', error);
-      Alert.alert('Error', 'Falló la subida');
+      Alert.alert('Error', error);
     }
   };
 
