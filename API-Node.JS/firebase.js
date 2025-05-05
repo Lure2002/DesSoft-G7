@@ -1,9 +1,9 @@
 // firebase.js
-import admin from 'firebase-admin';
-import { readFileSync } from 'fs';
+const admin = require('firebase-admin');
+const fs = require('fs');
 
 const serviceAccount = JSON.parse(
-  readFileSync('./clave-firebase.json', 'utf8') // Descargala desde la consola
+  fs.readFileSync('./clave-firebase.json', 'utf8') // Descargala desde la consola
 );
 
 admin.initializeApp({
@@ -13,4 +13,4 @@ admin.initializeApp({
 
 const bucket = admin.storage().bucket();
 
-export { bucket };
+module.exports = { bucket };  
