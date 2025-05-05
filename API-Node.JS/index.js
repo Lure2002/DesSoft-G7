@@ -2,13 +2,22 @@ const express = require('express');
 const cors = require('cors');
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
+import multer from 'multer';
+import { bucket } from './Firebase';
 
 const app = express();
 const prisma = new PrismaClient();
 
 app.use(express.json());
 
-app.use(cors());
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || origin.startsWith('http://localhost')) {
+      return callback(null, true);
+    }
+    return callback(new Error('No autorizado por CORS'));
+  }
+}));
 
 // Función para formato de respuesta estándar
 const response = (res, statusCode, reasonPhrase, body) => {
@@ -121,17 +130,70 @@ app.get('/usuarios/:id/mascotas', async (req, res) => {
 
 app.post('/mascotas', async (req, res) => {
   try {
-    const { nombre, raza, id_user } = req.body;
+    const { nombre, id_raza, id_especie, id_user, pulsaciones, estado_ansiedad, latitud, longitud } = req.body;
     const nuevaMascota = await prisma.mascotas.create({
       data: {
         nombre,
-        raza,
+        raza: {
+          connect: { id: id_raza }
+        },
+        especie: {
+          connect: { id: id_especie }
+        },
+        pulsaciones,
+        estado_ansiedad,
+        latitud,
+        longitud,
         usuario: {
           connect: { id: id_user }
         }
       }
     });
+    
     return response(res, 201, 'Created', nuevaMascota);
+  } catch (error) {
+    return response(res, 500, 'Internal Server Error', { error: error.message });
+  }
+});
+
+const upload = multer({ storage: multer.memoryStorage() });
+
+app.post('/mascotas/:id/imagen', upload.single('imagen'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const file = req.file;
+
+    if (!file) return response(res, 400, 'Bad Request', { error: 'No se envió una imagen' });
+
+    const blob = bucket.file(`mascotas/${Date.now()}-${file.originalname}`);
+    const blobStream = blob.createWriteStream({
+      metadata: { contentType: file.mimetype },
+    });
+
+    blobStream.end(file.buffer);
+
+    blobStream.on('error', (err) => {
+      console.error(err);
+      return response(res, 500, 'Error al subir imagen', { error: err.message });
+    });
+
+    blobStream.on('finish', async () => {
+      const [url] = await blob.getSignedUrl({
+        action: 'read',
+        expires: '03-01-2030',
+      });
+
+      const mascotaActualizada = await prisma.mascotas.update({
+        where: { id: Number(id) },
+        data: { imagen_url: url },
+      });
+
+      return response(res, 200, 'Imagen subida correctamente', {
+        imagen_url: url,
+        mascota: mascotaActualizada
+      });
+    });
+
   } catch (error) {
     return response(res, 500, 'Internal Server Error', { error: error.message });
   }

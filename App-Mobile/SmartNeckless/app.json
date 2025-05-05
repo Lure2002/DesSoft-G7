@@ -49,12 +49,12 @@
         "projectId": "edbc3475-86ab-44f3-84c8-25a485495c18"
       }
     },
-    "owner": "lure2002",
     "runtimeVersion": {
       "policy": "appVersion"
     },
     "updates": {
       "url": "https://u.expo.dev/edbc3475-86ab-44f3-84c8-25a485495c18"
-    }
+    },
+    "owner": "lure2002"
   }
 }
