@@ -1,5 +1,3 @@
-const API = {crearUsuario, loginrUsuario, getUsuarios, getUsuario, deleteUsuario, getMascotas, crearMascota, deleteMascota, deleteMascotasUsuario}
-
 async function crearUsuario (nombre, email, password) {
     return fetch("https://dessoft-g7.onrender.com/usuarios", {
         method: "POST",
@@ -89,4 +87,56 @@ async function deleteMascotasUsuario (id) {
     .catch(err => console.error(err))
 }
 
-export default API
+async function subirImagenUsuario(id, uri) {
+    const formData = new FormData();
+    formData.append('imagen', {
+        uri,
+        name: 'perfil.jpg',
+        type: 'image/jpeg',
+    });
+
+    return fetch(`https://dessoft-g7.onrender.com/usuarios/${id}/imagen`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    })
+    .then(res => res.json())
+    .catch(err => console.error(err));
+}
+
+async function subirImagenMascota(id, uri) {
+    const formData = new FormData();
+    formData.append('imagen', {
+        uri,
+        name: 'mascota.jpg',
+        type: 'image/jpeg',
+    });
+
+    return fetch(`https://dessoft-g7.onrender.com/mascotas/${id}/imagen`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    })
+    .then(res => res.json())
+    .catch(err => console.error(err));
+}
+
+const API = {
+    crearUsuario,
+    loginrUsuario,
+    getUsuarios,
+    getUsuario,
+    deleteUsuario,
+    getMascotas,
+    crearMascota,
+    deleteMascota,
+    deleteMascotasUsuario,
+    subirImagenUsuario,
+    subirImagenMascota // ✅ ahora también mascotas
+};
+
+export default API;

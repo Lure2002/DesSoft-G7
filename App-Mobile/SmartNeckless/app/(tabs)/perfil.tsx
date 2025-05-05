@@ -1,35 +1,87 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  ScrollView,
+  Alert
+} from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 import { useTheme } from '@/context/ThemeContext';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'expo-router';
+import API from '@/services/apiSmartNeckless';
+import MascotaCard from '@/components/MascotaCard';
 
 export default function Profile() {
   const theme = useTheme();
   const styles = createStyles(theme);
-  const { user, logout } = useAuth();
+  const { user, logout, login } = useAuth();
   const router = useRouter();
 
-  const mascotas = user?.mascotas || []; // viene desde login si lo cargaste ahí
+  const mascotas = user?.mascotas || [];
 
   const handleVerTodo = () => router.push('/mascotas');
   const handleLogout = () => logout();
 
+  const handleSeleccionarImagen = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permiso denegado', 'Se necesita acceso a la galería.');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 0.8,
+      base64: false,
+    });
+
+    if (!result.canceled && result.assets.length > 0) {
+      const image = result.assets[0];
+      subirImagen(image.uri);
+    }
+  };
+
+  const subirImagen = async (uri: string) => {
+    try {
+      const res = await API.subirImagenUsuario(user?.id, uri);
+      if (res.statusCode === 200 && user) {
+        const nuevaUrl = res.body.imagen_url;
+        login({
+          ...user,
+          imagen_url: nuevaUrl
+        });        
+      } else {
+        Alert.alert('Error', res.body?.error || 'No se pudo subir la imagen');
+      }
+    } catch (error) {
+      console.error('Error al subir imagen:', error);
+      Alert.alert('Error', 'Falló la subida');
+    }
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Image
-        source={require('../../assets/images/icon.png')} // usá una imagen local genérica
-        style={styles.avatar}
-      />
+      <TouchableOpacity onPress={handleSeleccionarImagen}>
+        <Image
+          source={
+            user?.imagen_url
+              ? { uri: user.imagen_url }
+              : require('../../assets/images/icon.png')
+          }
+          style={styles.avatar}
+        />
+      </TouchableOpacity>
+
       <Text style={styles.nombre}>{user?.nombre}</Text>
       <Text style={styles.email}>{user?.email}</Text>
 
       <View style={styles.mascotasContainer}>
         {mascotas.slice(0, 4).map((m) => (
-          <View key={m.id} style={styles.mascotaCard}>
-            <Text style={styles.mascotaNombre}>{m.nombre}</Text>
-            <Text style={styles.mascotaRaza}>{m.raza}</Text>
-          </View>
+          <MascotaCard key={m.id} mascota={m} />
         ))}
       </View>
 
