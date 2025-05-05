@@ -28,6 +28,8 @@ const response = (res, statusCode, reasonPhrase, body) => {
   });
 };
 
+const upload = multer({ storage: multer.memoryStorage() });
+
 app.post('/usuarios', async (req, res) => {
   try {
     const { nombre, email, password } = req.body;
@@ -128,6 +130,48 @@ app.get('/usuarios/:id/mascotas', async (req, res) => {
   }
 });
 
+app.post('/usuarios/:id/imagen', upload.single('imagen'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const file = req.file;
+
+    if (!file) return response(res, 400, 'Bad Request', { error: 'No se envió una imagen' });
+
+    const blob = bucket.file(`usuarios/${Date.now()}-${file.originalname}`);
+    const blobStream = blob.createWriteStream({
+      metadata: { contentType: file.mimetype },
+    });
+
+    blobStream.end(file.buffer);
+
+    blobStream.on('error', (err) => {
+      console.error(err);
+      return response(res, 500, 'Error al subir imagen', { error: err.message });
+    });
+
+    blobStream.on('finish', async () => {
+      const [url] = await blob.getSignedUrl({
+        action: 'read',
+        expires: '03-01-2030',
+      });
+
+      const usuarioActualizado = await prisma.usuarios.update({
+        where: { id: Number(id) },
+        data: { imagen_url: url },
+      });
+
+      return response(res, 200, 'Imagen subida correctamente', {
+        imagen_url: url,
+        usuario: usuarioActualizado
+      });
+    });
+
+  } catch (error) {
+    return response(res, 500, 'Internal Server Error', { error: error.message });
+  }
+});
+
+
 app.post('/mascotas', async (req, res) => {
   try {
     const { nombre, id_raza, id_especie, id_user, pulsaciones, estado_ansiedad, latitud, longitud } = req.body;
@@ -155,8 +199,6 @@ app.post('/mascotas', async (req, res) => {
     return response(res, 500, 'Internal Server Error', { error: error.message });
   }
 });
-
-const upload = multer({ storage: multer.memoryStorage() });
 
 app.post('/mascotas/:id/imagen', upload.single('imagen'), async (req, res) => {
   try {
