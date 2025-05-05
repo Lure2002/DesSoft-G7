@@ -8,7 +8,7 @@ if (!credentialsBase64) {
 const serviceAccount = JSON.parse(Buffer.from(credentialsBase64, 'base64').toString('utf8'));
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  storageBucket: 'tu-bucket.appspot.com', // cambiá esto por tu bucket real
+  storageBucket: 'smartneckless-1.firebasestorage.app', // cambiá esto por tu bucket real
 });
 
 const bucket = admin.storage().bucket();
