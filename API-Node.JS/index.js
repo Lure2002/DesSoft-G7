@@ -128,16 +128,26 @@ app.get('/usuarios/:id/mascotas', async (req, res) => {
 
 app.post('/mascotas', async (req, res) => {
   try {
-    const { nombre, raza, id_user } = req.body;
+    const { nombre, id_raza, id_especie, id_user, pulsaciones, estado_ansiedad, latitud, longitud } = req.body;
     const nuevaMascota = await prisma.mascotas.create({
       data: {
         nombre,
-        raza,
+        raza: {
+          connect: { id: id_raza }
+        },
+        especie: {
+          connect: { id: id_especie }
+        },
+        pulsaciones,
+        estado_ansiedad,
+        latitud,
+        longitud,
         usuario: {
           connect: { id: id_user }
         }
       }
     });
+    
     return response(res, 201, 'Created', nuevaMascota);
   } catch (error) {
     return response(res, 500, 'Internal Server Error', { error: error.message });

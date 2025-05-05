@@ -22,9 +22,41 @@ model usuarios {
 }
 
 model mascotas {
-  id     Int    @id @default(autoincrement())
-  nombre String
-  raza String
-  id_user Int
-  usuario usuarios @relation(fields: [id_user], references: [id], onDelete: Cascade)
+  id                 Int       @id @default(autoincrement())
+  nombre             String
+
+  // Relaciones
+  id_user            Int
+  usuario            usuarios  @relation(fields: [id_user], references: [id], onDelete: Cascade)
+
+  id_raza            Int
+  raza               razas     @relation(fields: [id_raza], references: [id])
+
+  id_especie         Int
+  especie            especies  @relation(fields: [id_especie], references: [id])
+
+  // Datos biométricos
+  pulsaciones        Int?
+  estado_ansiedad    String?
+
+  // Ubicación
+  latitud            Float?
+  longitud           Float?
+
+  ultima_actualizacion DateTime? @default(now())
+}
+
+model especies {
+  id      Int       @id @default(autoincrement())
+  nombre  String    @unique
+  razas   razas[]
+  mascotas mascotas[]
+}
+
+model razas {
+  id        Int       @id @default(autoincrement())
+  nombre    String
+  id_especie Int
+  especie   especies  @relation(fields: [id_especie], references: [id])
+  mascotas  mascotas[]
 }
