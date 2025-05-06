@@ -1,14 +1,23 @@
 import React from 'react';
-import { Text, View, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { useTheme } from '@/context/ThemeContext';
+import MascotaCard from '@/components/MascotaCard';
+import { useAuth } from '@/context/AuthContext';
+import CreateMascotaCard from '@/components/CreateMascotaCard';
 
 export default function Pets() {
   const theme = useTheme();
   const styles = createStyles(theme);
+  const { user } = useAuth();
+  const mascotas = user?.mascotas || [];
 
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Pets screen</Text>
+      {
+        mascotas.length === 0 ? 
+          <CreateMascotaCard /> : 
+        mascotas.map((m,key) => <MascotaCard key={key} mascota={m} />)
+      }
     </View>
   );
 }
@@ -18,7 +27,7 @@ const createStyles = (theme: 'light' | 'dark') =>
     container: {
       flex: 1,
       backgroundColor: theme === 'dark' ? '#25292e' : '#f2f2f2',
-      justifyContent: 'center',
+      justifyContent: 'flex-start',
       alignItems: 'center',
     },
     text: {

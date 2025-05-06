@@ -6,8 +6,11 @@ export interface Mascota {
   raza: string;
   imagen_url?: string;
   pulsaciones: number;
-  ansiedad: string; // "Alta", "Media", etc.
+  latitud: number;
+  longitud: number;
+  estado_ansiedad: string; // "Alta", "Media", etc.
   especie: string;
+  ultimaActualizacion: string;
 }
 
 interface User {

@@ -8,14 +8,18 @@ import {
   ScrollView,
   Alert
 } from 'react-native';
+import * as FileSystem from 'expo-file-system';
 import * as ImagePicker from 'expo-image-picker';
 import { useTheme } from '@/context/ThemeContext';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'expo-router';
 import API from '@/services/apiSmartNeckless';
 import MascotaCard from '@/components/MascotaCard';
+import { ApiException } from '@/constants/Exceptions';
+import Spinner from '../../components/Spinner';
 
 export default function Profile() {
+  const [loading, setLoading] = React.useState(false);
   const theme = useTheme();
   const styles = createStyles(theme);
   const { user, logout, login } = useAuth();
@@ -32,37 +36,51 @@ export default function Profile() {
       Alert.alert('Permiso denegado', 'Se necesita acceso a la galería.');
       return;
     }
-
+  
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       quality: 0.8,
       base64: false,
     });
-
+  
     if (!result.canceled && result.assets.length > 0) {
-      const image = result.assets[0];
-      subirImagen(image.uri);
+      const imageAsset = result.assets[0];
+      subirImagen(imageAsset); // ✅ pasamos el asset completo
     }
   };
 
-  const subirImagen = async (uri: string) => {
+  const subirImagen = async (imageAsset:ImagePicker.ImagePickerAsset) => {
     try {
-      const res = await API.subirImagenUsuario(user?.id, uri);
+      setLoading(true);
+      const fileUri = FileSystem.cacheDirectory + `perfil-${Date.now()}.jpg`;
+
+      // Escribí la base64 como archivo temporal
+      await FileSystem.writeAsStringAsync(fileUri, imageAsset.uri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });debugger;
+      const res = await API.subirImagenUsuario(user?.id, fileUri, imageAsset.fileName, imageAsset.mimeType); // ✅ pasa el asset, no uri
+  
       if (res.statusCode === 200 && user) {
         const nuevaUrl = res.body.imagen_url;
         login({
           ...user,
-          imagen_url: nuevaUrl
-        });        
+          imagen_url: nuevaUrl,
+        });
       } else {
         Alert.alert('Error', res.body?.error || 'No se pudo subir la imagen');
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error al subir imagen:', error);
-      Alert.alert('Error', error);
+      Alert.alert('Error', (error as ApiException)?.body?.error);
+    } finally {
+      setLoading(false);
     }
-  };
-
+  };  
+  if (loading) {
+    return (
+      <Spinner size="large"/>
+    );
+  }
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <TouchableOpacity onPress={handleSeleccionarImagen}>

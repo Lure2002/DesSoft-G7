@@ -110,10 +110,10 @@ export default function MascotaCard({ mascota }: Props) {
 
             <View style={styles.statusItem}>
               <Warning size={16} color="#ffa502" />
-              <Text style={styles.statusText}>{mascotaActual.ansiedad}</Text>
+              <Text style={styles.statusText}>{mascotaActual.estado_ansiedad}</Text>
             </View>
 
-            <View style={styles.statusItemEnd}>
+            <View style={styles.statusItem}>
               <MapPin size={16} color="#0a84ff" />
               <ArrowRight size={16} color="#0a84ff" />
             </View>
@@ -159,6 +159,7 @@ const createStyles = (isDark: boolean) =>
       shadowColor: '#000',
       shadowOpacity: 0.1,
       shadowRadius: 4,
+      width: '80%',
     },
     imageWrapper: {
       marginRight: 12,
