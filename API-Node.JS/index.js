@@ -174,10 +174,11 @@ app.post('/usuarios/:id/imagen', upload.single('imagen'), async (req, res) => {
 
 app.post('/mascotas', async (req, res) => {
   try {
-    const { nombre, id_raza, id_especie, id_user, pulsaciones, estado_ansiedad, latitud, longitud } = req.body;
+    const { nombre, sexo, id_raza, id_especie, id_user, pulsaciones, estado_ansiedad, latitud, longitud } = req.body;
     const nuevaMascota = await prisma.mascotas.create({
       data: {
         nombre,
+        sexo,
         raza: {
           connect: { id: id_raza }
         },
@@ -260,6 +261,15 @@ app.delete('/usuarios/:id/mascotas', async (req, res) => {
       where: { id_user: Number(id) }
     });
     return response(res, 200, 'OK', mascotas);
+  } catch (error) {
+    return response(res, 500, 'Internal Server Error', { error: error.message });
+  }
+});
+
+app.get('/razas', async (req, res) => {
+  try {
+    const razas = await prisma.razas.findMany();
+    return response(res, 200, 'OK', razas);
   } catch (error) {
     return response(res, 500, 'Internal Server Error', { error: error.message });
   }

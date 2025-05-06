@@ -7,6 +7,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum SexoTipo {
+  macho
+  hembra
+}
+
+
 model usuarios {
   id               Int        @id @default(autoincrement())
   nombre           String     @db.VarChar(100)
@@ -31,6 +37,7 @@ model mascotas {
   especie              especies? @relation(fields: [id_especie], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_especie")
   raza                 razas?    @relation(fields: [id_raza], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_raza")
   usuario              usuarios  @relation(fields: [id_user], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  sexo                 SexoTipo  @default(macho)
 }
 
 model especies {
