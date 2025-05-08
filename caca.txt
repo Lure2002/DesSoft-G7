@@ -6,3 +6,4 @@ con la flechita descartas cambio
 y con la primer opcion ves los cambios que sucedieron
 ahora lo que tenes que hacer es ponerle un nombre al cambio para subirlo a tu MAQUINA
 A TU MAQUINA ACORDATE
+cuando vos le das a commit, el cambio sube a tu maquina, yo si me bajo tu rama no voy a ver el cambio porque no lo subiste online, lo subiste a tu maquina nomas, por eso ahora queda el ultimo paso:
