@@ -3,7 +3,7 @@ const cors = require('cors');
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
 const multer = require('multer');
-const { bucket } = require('./firebase');
+//const { bucket } = require('./firebase');
 
 const app = express();
 const prisma = new PrismaClient();

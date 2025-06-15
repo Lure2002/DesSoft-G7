@@ -1,3 +1,4 @@
+/*
 // firebase.js
 const admin = require('firebase-admin');
 
@@ -13,4 +14,5 @@ admin.initializeApp({
 
 const bucket = admin.storage().bucket();
 
-module.exports = { bucket };
+module.exports = { bucket };   
+*/
