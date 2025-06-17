@@ -1,4 +1,4 @@
-var API_URL = 'https://dessoft-g7.onrender.com'
+const API_URL = 'https://dessoft-g7.onrender.com'
 
 async function crearUsuario(nombre, email, password) {
     return fetch(API_URL + "/usuarios", {

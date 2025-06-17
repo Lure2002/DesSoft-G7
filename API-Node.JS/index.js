@@ -29,11 +29,29 @@ const response = (res, statusCode, reasonPhrase, body) => {
 };
 
 const upload = multer({ storage: multer.memoryStorage() });
-
+// registro de usuario
 app.post('/usuarios', async (req, res) => {
   try {
     const { nombre, email, password } = req.body;
+
+    // Validaciones básicas
+    if (!nombre || !email || !password) {
+      return response(res, 400, 'Bad Request', { error: 'Faltan campos obligatorios' });
+    }
+
+    // Verificar si el email ya está registrado
+    const existeUsuario = await prisma.usuarios.findUnique({
+      where: { email }
+    });
+
+    if (existeUsuario) {
+      return response(res, 400, 'Bad Request', { error: 'El email ya está en uso' });
+    }
+
+    // Hashear contraseña
     const passwordHasheado = await bcrypt.hash(password, 10);
+
+    // Crear usuario
     const nuevo = await prisma.usuarios.create({
       data: {
         nombre,
@@ -41,6 +59,7 @@ app.post('/usuarios', async (req, res) => {
         hash_contrasenia: passwordHasheado
       }
     });
+
     return response(res, 201, 'Created', {
       id: nuevo.id, nombre: nuevo.nombre, email: nuevo.email
     });
@@ -48,7 +67,7 @@ app.post('/usuarios', async (req, res) => {
     return response(res, 500, 'Internal Server Error', { error: error.message });
   }
 });
-
+// Login
 app.post('/usuarios/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -73,7 +92,7 @@ app.post('/usuarios/login', async (req, res) => {
     return response(res, 500, 'Internal Server Error', { error: error.message });
   }
 });
-
+// Devuelve todos los ususarios
 app.get('/usuarios', async (req, res) => {
   try {
     const usuarios = await prisma.usuarios.findMany();
@@ -129,114 +148,41 @@ app.get('/usuarios/:id/mascotas', async (req, res) => {
     return response(res, 500, 'Internal Server Error', { error: error.message });
   }
 });
-
-app.post('/usuarios/:id/imagen', upload.single('imagen'), async (req, res) => {
-  try {
-    const { id } = req.params;
-    const file = req.file;
-
-    if (!file) return response(res, 400, 'Bad Request', { error: 'No se envió una imagen' });
-
-    const blob = bucket.file(`usuarios/${Date.now()}-${file.originalname}`);
-    const blobStream = blob.createWriteStream({
-      metadata: { contentType: file.mimetype },
-    });
-
-    blobStream.end(file.buffer);
-
-    blobStream.on('error', (err) => {
-      console.error(err);
-      return response(res, 500, 'Error al subir imagen', { error: err.message });
-    });
-
-    blobStream.on('finish', async () => {
-      const [url] = await blob.getSignedUrl({
-        action: 'read',
-        expires: '03-01-2030',
-      });
-
-      const usuarioActualizado = await prisma.usuarios.update({
-        where: { id: Number(id) },
-        data: { imagen_url: url },
-      });
-
-      return response(res, 200, 'Imagen subida correctamente', {
-        imagen_url: url,
-        usuario: usuarioActualizado
-      });
-    });
-
-  } catch (error) {
-    return response(res, 500, 'Internal Server Error', { error: error.message });
-  }
-});
-
-
+// registro de mascotas por id de ususario
 app.post('/mascotas', async (req, res) => {
   try {
     const { nombre, sexo, id_raza, id_especie, id_user, pulsaciones, estado_ansiedad, latitud, longitud } = req.body;
+
+    // Validar campos obligatorios
+    if (!nombre || !sexo || !id_raza || !id_especie || !id_user) {
+      return response(res, 400, 'Bad Request', { error: 'Faltan campos obligatorios' });
+    }
+
+    // Verificar que el usuario exista
+    const usuario = await prisma.usuarios.findUnique({
+      where: { id: id_user }
+    });
+
+    if (!usuario) {
+      return response(res, 404, 'Not Found', { error: 'Usuario no encontrado' });
+    }
+
+    // Crear mascota
     const nuevaMascota = await prisma.mascotas.create({
       data: {
         nombre,
         sexo,
-        raza: {
-          connect: { id: id_raza }
-        },
-        especie: {
-          connect: { id: id_especie }
-        },
+        id_raza,
+        id_especie,
         pulsaciones,
         estado_ansiedad,
         latitud,
         longitud,
-        usuario: {
-          connect: { id: id_user }
-        }
+        id_user
       }
     });
-    
+
     return response(res, 201, 'Created', nuevaMascota);
-  } catch (error) {
-    return response(res, 500, 'Internal Server Error', { error: error.message });
-  }
-});
-
-app.post('/mascotas/:id/imagen', upload.single('imagen'), async (req, res) => {
-  try {
-    const { id } = req.params;
-    const file = req.file;
-
-    if (!file) return response(res, 400, 'Bad Request', { error: 'No se envió una imagen' });
-
-    const blob = bucket.file(`mascotas/${Date.now()}-${file.originalname}`);
-    const blobStream = blob.createWriteStream({
-      metadata: { contentType: file.mimetype },
-    });
-
-    blobStream.end(file.buffer);
-
-    blobStream.on('error', (err) => {
-      console.error(err);
-      return response(res, 500, 'Error al subir imagen', { error: err.message });
-    });
-
-    blobStream.on('finish', async () => {
-      const [url] = await blob.getSignedUrl({
-        action: 'read',
-        expires: '03-01-2030',
-      });
-
-      const mascotaActualizada = await prisma.mascotas.update({
-        where: { id: Number(id) },
-        data: { imagen_url: url },
-      });
-
-      return response(res, 200, 'Imagen subida correctamente', {
-        imagen_url: url,
-        mascota: mascotaActualizada
-      });
-    });
-
   } catch (error) {
     return response(res, 500, 'Internal Server Error', { error: error.message });
   }
@@ -265,13 +211,127 @@ app.delete('/usuarios/:id/mascotas', async (req, res) => {
     return response(res, 500, 'Internal Server Error', { error: error.message });
   }
 });
+// Devuelve las especies: Perro o Gato
+app.get('/especies', async (req, res) => {
+  try {
+    const especies = await prisma.especies.findMany();
+    return response(res, 200, 'OK', especies);
+  } catch (error) {
+    return response(res, 500, 'Internal Server Error', { error: error.message });
+  }
+});
 
 app.get('/razas', async (req, res) => {
   try {
-    const razas = await prisma.razas.findMany();
+    const razas = await prisma.razas.findMany({
+      include: {
+        especie: true
+      }
+    });
     return response(res, 200, 'OK', razas);
   } catch (error) {
     return response(res, 500, 'Internal Server Error', { error: error.message });
+  }
+});
+// Devuelve todas las razas por especie
+app.get('/razas/especie/:id_especie', async (req, res) => {
+  try {
+    const { id_especie } = req.params;
+
+    const razas = await prisma.razas.findMany({
+      where: {
+        id_especie: Number(id_especie)
+      },
+      include: {
+        especie: true
+      }
+    });
+
+    if (!razas.length) {
+      return response(res, 404, 'Not Found', { error: 'No hay razas para esta especie' });
+    }
+
+    return response(res, 200, 'OK', razas);
+  } catch (error) {
+    return response(res, 500, 'Internal Server Error', { error: error.message });
+  }
+});
+// Datos del Prototipo
+app.post('/datos', async (req, res) => {
+  const { temperatura, bpm, lat, lng, mascotaId } = req.body;
+
+  // Validación básica
+  if (!mascotaId || (!temperatura && !bpm)) {
+    return res.status(400).json({
+      status: 'ERROR',
+      mensaje: 'Faltan datos: mascotaId y al menos un valor (temperatura o bpm)'
+    });
+  }
+
+  try {
+    // Buscar raza de la mascota
+    const mascota = await prisma.mascota.findUnique({
+      where: { id: Number(mascotaId) },
+      include: {
+        raza: true
+      }
+    });
+
+    if (!mascota) {
+      return res.status(404).json({
+        status: 'ERROR',
+        mensaje: 'Mascota no encontrada'
+      });
+    }
+
+    const {
+      temperaturaNormalMin,
+      temperaturaNormalMax,
+      pulsacionesNormalesMin,
+      pulsacionesNormalesMax
+    } = mascota.raza;
+
+    const alertas = [];
+
+    // Alertas de temperatura
+    if (temperatura) {
+      if (temperatura > temperaturaNormalMax) {
+        alertas.push(`Temperatura más alta que lo normal (${temperatura}°C)`);
+      } else if (temperatura < temperaturaNormalMin) {
+        alertas.push(`Temperatura más baja que lo normal (${temperatura}°C)`);
+      }
+    }
+
+    // Alertas de pulsaciones
+    if (bpm) {
+      if (bpm > pulsacionesNormalesMax) {
+        alertas.push(`Pulsaciones más altas que lo normal (${bpm} ppm)`);
+      } else if (bpm < pulsacionesNormalesMin) {
+        alertas.push(`Pulsaciones más bajas que lo normal (${bpm} ppm)`);
+      }
+    }
+
+    console.log('✔ Datos analizados');
+
+    // Responder con alertas
+    res.status(200).json({
+      status: 'OK',
+      mensaje: 'Datos procesados',
+      datos: {
+        temperatura,
+        bpm,
+        mascota: mascota.nombre
+      },
+      alertas: alertas.length ? alertas : ['Sin alertas']
+    });
+
+  } catch (error) {
+    console.error('❌ Error en /datos:', error);
+    res.status(500).json({
+      status: 'ERROR',
+      mensaje: 'Hubo un problema al procesar los datos',
+      error: error.message
+    });
   }
 });
 
