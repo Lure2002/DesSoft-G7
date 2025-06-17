@@ -30,52 +30,6 @@ export default function Profile() {
   const handleVerTodo = () => router.push('/mascotas');
   const handleLogout = () => logout();
 
-  const handleSeleccionarImagen = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permiso denegado', 'Se necesita acceso a la galería.');
-      return;
-    }
-  
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 0.8,
-      base64: false,
-    });
-  
-    if (!result.canceled && result.assets.length > 0) {
-      const imageAsset = result.assets[0];
-      subirImagen(imageAsset); // ✅ pasamos el asset completo
-    }
-  };
-
-  const subirImagen = async (imageAsset:ImagePicker.ImagePickerAsset) => {
-    try {
-      setLoading(true);
-      const fileUri = FileSystem.cacheDirectory + `perfil-${Date.now()}.jpg`;
-
-      // Escribí la base64 como archivo temporal
-      await FileSystem.writeAsStringAsync(fileUri, imageAsset.uri, {
-        encoding: FileSystem.EncodingType.Base64,
-      });debugger;
-      const res = await API.subirImagenUsuario(user?.id, fileUri, imageAsset.fileName, imageAsset.mimeType); // ✅ pasa el asset, no uri
-  
-      if (res.statusCode === 200 && user) {
-        const nuevaUrl = res.body.imagen_url;
-        login({
-          ...user,
-          imagen_url: nuevaUrl,
-        });
-      } else {
-        Alert.alert('Error', res.body?.error || 'No se pudo subir la imagen');
-      }
-    } catch (error) {
-      console.error('Error al subir imagen:', error);
-      Alert.alert('Error', (error as ApiException)?.body?.error);
-    } finally {
-      setLoading(false);
-    }
-  };  
   if (loading) {
     return (
       <Spinner size="large"/>
@@ -83,16 +37,10 @@ export default function Profile() {
   }
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <TouchableOpacity onPress={handleSeleccionarImagen}>
-        <Image
-          source={
-            user?.imagen_url
-              ? { uri: user.imagen_url }
-              : require('../../assets/images/icon.png')
-          }
-          style={styles.avatar}
-        />
-      </TouchableOpacity>
+      <Image
+        source={ require('../../assets/images/icon.png') }
+        style={styles.avatar}
+      />
 
       <Text style={styles.nombre}>{user?.nombre}</Text>
       <Text style={styles.email}>{user?.email}</Text>
