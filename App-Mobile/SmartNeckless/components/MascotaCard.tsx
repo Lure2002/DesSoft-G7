@@ -30,8 +30,6 @@ export default function MascotaCard({ mascota }: Props) {
 
   const handleImagePress = () => setModalVisible(true);
 
-
-
   return (
     <>
       <TouchableOpacity onPress={handleNavigate} style={styles.card}>
