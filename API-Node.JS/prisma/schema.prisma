@@ -7,43 +7,48 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model usuarios {
+model usuario {
   id               Int        @id @default(autoincrement())
   nombre           String     @db.VarChar(100)
   email            String?    @unique @db.VarChar(100)
   hash_contrasenia String
   imagen_url       String?
-  mascotas         mascotas[]
+  mascotas         mascota[]
 }
 
-model mascotas {
+enum Sexo {
+  MACHO
+  HEMBRA
+}
+
+model mascota {
   id                   Int       @id @default(autoincrement())
   nombre               String    @unique @db.VarChar(100)
   id_user              Int
   id_raza              Int?
   id_especie           Int?
   pulsaciones          Int?
-  estado_ansiedad      String?   @db.VarChar(50)
+  estado               String?   @db.VarChar(50)
   latitud              Decimal?  @db.Decimal(10, 8)
   longitud             Decimal?  @db.Decimal(11, 8)
   ultima_actualizacion DateTime? @default(now()) @db.Timestamp(6)
-  imagen_url           String?
-  especie              especies? @relation(fields: [id_especie], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_especie")
-  raza                 razas?    @relation(fields: [id_raza], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_raza")
-  usuario              usuarios  @relation(fields: [id_user], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  sexo                 Sexo?
+  especie              especie? @relation(fields: [id_especie], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_especie")
+  raza                 raza?    @relation(fields: [id_raza], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_raza")
+  usuario              usuario  @relation(fields: [id_user], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
-model especies {
+model especie {
   id       Int        @id @default(autoincrement())
   nombre   String     @unique @db.VarChar(50)
-  mascotas mascotas[]
-  razas    razas[]
+  mascotas mascota[]
+  razas    raza[]
 }
 
-model razas {
+model raza {
   id         Int        @id @default(autoincrement())
   nombre     String     @db.VarChar(100)
   id_especie Int
-  mascotas   mascotas[]
-  especie    especies   @relation(fields: [id_especie], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  mascotas   mascota[]
+  especie    especie   @relation(fields: [id_especie], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
