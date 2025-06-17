@@ -26,55 +26,12 @@ export default function Profile() {
   const handleVerTodo = () => router.push('/mascotas');
   const handleLogout = () => logout();
 
-  const handleSeleccionarImagen = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permiso denegado', 'Se necesita acceso a la galería.');
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 0.8,
-      base64: false,
-    });
-
-    if (!result.canceled && result.assets.length > 0) {
-      const image = result.assets[0];
-      subirImagen(image.uri);
-    }
-  };
-
-  const subirImagen = async (uri: string) => {
-    try {
-      const res = await API.subirImagenUsuario(user?.id, uri);
-      if (res.statusCode === 200 && user) {
-        const nuevaUrl = res.body.imagen_url;
-        login({
-          ...user,
-          imagen_url: nuevaUrl
-        });        
-      } else {
-        Alert.alert('Error', res.body?.error || 'No se pudo subir la imagen');
-      }
-    } catch (error) {
-      console.error('Error al subir imagen:', error);
-      Alert.alert('Error', 'Falló la subida');
-    }
-  };
-
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <TouchableOpacity onPress={handleSeleccionarImagen}>
-        <Image
-          source={
-            user?.imagen_url
-              ? { uri: user.imagen_url }
-              : require('../../assets/images/icon.png')
-          }
-          style={styles.avatar}
-        />
-      </TouchableOpacity>
+      <Image
+        source={"https://img.icons8.com/?size=100&id=YFxNasc9IQtI&format=png&color=" + (theme == 'light' ? "000000" : "FFFFFF")}
+        style={styles.avatar}
+      />
 
       <Text style={styles.nombre}>{user?.nombre}</Text>
       <Text style={styles.email}>{user?.email}</Text>
@@ -110,8 +67,8 @@ const createStyles = (theme: 'light' | 'dark') =>
     avatar: {
       width: 100,
       height: 100,
-      borderRadius: 50,
       marginBottom: 16,
+      filter: "invert(100%)"
     },
     nombre: {
       fontSize: 20,

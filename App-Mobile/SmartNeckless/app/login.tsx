@@ -39,7 +39,7 @@ export default function LoginScreen() {
                     );
                 }
             } else {
-                const response = await API.loginrUsuario(email, password);
+                const response = await API.loginUsuario(email, password);
                 if (response.statusCode === 200) {
                     login(response.body);
                 } else {
