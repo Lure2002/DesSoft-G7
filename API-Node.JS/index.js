@@ -48,7 +48,7 @@ app.post('/usuarios', async (req, res) => {
 app.post('/usuarios/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    const usuario = await prisma.usuarios.findUnique({ 
+    const usuario = await prisma.usuario.findUnique({ 
       where: { email },
       include: { mascotas: true } 
     });
@@ -72,7 +72,7 @@ app.post('/usuarios/login', async (req, res) => {
 
 app.get('/usuarios', async (req, res) => {
   try {
-    const usuarios = await prisma.usuarios.findMany();
+    const usuarios = await prisma.usuario.findMany();
     return response(res, 200, 'OK', usuarios);
   } catch (error) {
     return response(res, 500, 'Internal Server Error', { error: error.message });
@@ -82,7 +82,7 @@ app.get('/usuarios', async (req, res) => {
 app.get('/usuarios/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const usuario = await prisma.usuarios.findUnique({
+    const usuario = await prisma.usuario.findUnique({
       where: { id: Number(id) }
     });
 
@@ -99,7 +99,7 @@ app.get('/usuarios/:id', async (req, res) => {
 app.delete('/usuarios/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const usuario = await prisma.usuarios.delete({
+    const usuario = await prisma.usuario.delete({
       where: { id: Number(id) }
     });
     return response(res, 200, 'OK', usuario);
@@ -111,7 +111,7 @@ app.delete('/usuarios/:id', async (req, res) => {
 app.get('/usuarios/:id/mascotas', async (req, res) => {
   try {
     const { id } = req.params;
-    const usuario = await prisma.usuarios.findUnique({
+    const usuario = await prisma.usuario.findUnique({
       where: { id: Number(id) },
       include: { mascotas: true }
     });
