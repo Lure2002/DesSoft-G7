@@ -61,7 +61,7 @@ app.post('/register', async (req, res) => {
       return response(res, 401, 'Existing User', { error: 'Usuario existente' });
     }
     const passwordHasheado = await bcrypt.hash(password, 10);
-    const nuevo = await prisma.usuarios.create({
+    const nuevo = await prisma.usuario.create({
       data: {
         nombre,
         email,
