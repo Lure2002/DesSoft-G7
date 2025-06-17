@@ -1,5 +1,5 @@
 async function crearUsuario (nombre, email, password) {
-    return fetch("https://dessoft-g7.onrender.com/usuarios", {
+    return fetch("https://dessoft-g7-ykag.onrender.com/register", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -14,8 +14,8 @@ async function crearUsuario (nombre, email, password) {
     .catch(err => console.error(err))
 }
 
-async function loginrUsuario (email, password) {
-    return fetch("https://dessoft-g7.onrender.com/usuarios/login", {
+async function loginUsuario (email, password) {
+    return fetch("https://dessoft-g7-ykag.onrender.com/login", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -29,20 +29,14 @@ async function loginrUsuario (email, password) {
     .catch(err => console.error(err))
 }
 
-async function getUsuarios () {
-    return fetch("https://dessoft-g7.onrender.com/usuarios")
-    .then(res => res.json())
-    .catch(err => console.error(err))
-}
-
 async function getUsuario (id) {
-    return fetch(`https://dessoft-g7.onrender.com/usuarios/${id}`)
+    return fetch(`https://dessoft-g7-ykag.onrender.com/usuario/${id}`)
     .then(res => res.json())
     .catch(err => console.error(err))
 }
 
 async function deleteUsuario (id) {
-    return fetch(`https://dessoft-g7.onrender.com/usuarios/${id}`, {
+    return fetch(`https://dessoft-g7-ykag.onrender.com/usuario/${id}`, {
         method: "DELETE"
     })
     .then(res => res.json())
@@ -50,13 +44,19 @@ async function deleteUsuario (id) {
 }
 
 async function getMascotas (id) {
-    return fetch(`https://dessoft-g7.onrender.com/usuarios/${id}/mascotas`)
+    return fetch(`https://dessoft-g7-ykag.onrender.com/usuario/${id}/mascotas`)
+    .then(res => res.json())
+    .catch(err => console.error(err))
+}
+
+async function getMascota (id, idMascota) {
+    return fetch(`https://dessoft-g7-ykag.onrender.com/usuario/${id}/mascota/${idMascota}`)
     .then(res => res.json())
     .catch(err => console.error(err))
 }
 
 async function crearMascota (nombre, raza, id_user) {
-    return fetch("https://dessoft-g7.onrender.com/mascotas", {
+    return fetch("https://dessoft-g7-ykag.onrender.com/mascotas", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -72,71 +72,22 @@ async function crearMascota (nombre, raza, id_user) {
 }
 
 async function deleteMascota (id) {
-    return fetch(`https://dessoft-g7.onrender.com/mascotas/${id}`, {
+    return fetch(`https://dessoft-g7-ykag.onrender.com/mascotas/${id}`, {
         method: "DELETE"
     })
     .then(res => res.json())
     .catch(err => console.error(err))
-}
-
-async function deleteMascotasUsuario (id) {
-    return fetch(`https://dessoft-g7.onrender.com/mascotas/${id}`, {
-        method: "DELETE"
-    })
-    .then(res => res.json())
-    .catch(err => console.error(err))
-}
-
-async function subirImagenUsuario(id, uri) {
-    const formData = new FormData();
-    formData.append('imagen', {
-        uri,
-        name: 'perfil.jpg',
-        type: 'image/jpeg',
-    });
-
-    return fetch(`https://dessoft-g7.onrender.com/usuarios/${id}/imagen`, {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'Content-Type': 'multipart/form-data',
-        },
-    })
-    .then(res => res.json())
-    .catch(err => console.error(err));
-}
-
-async function subirImagenMascota(id, uri) {
-    const formData = new FormData();
-    formData.append('imagen', {
-        uri,
-        name: 'mascota.jpg',
-        type: 'image/jpeg',
-    });
-
-    return fetch(`https://dessoft-g7.onrender.com/mascotas/${id}/imagen`, {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'Content-Type': 'multipart/form-data',
-        },
-    })
-    .then(res => res.json())
-    .catch(err => console.error(err));
 }
 
 const API = {
     crearUsuario,
-    loginrUsuario,
-    getUsuarios,
+    loginUsuario,
     getUsuario,
     deleteUsuario,
     getMascotas,
+    getMascota,
     crearMascota,
     deleteMascota,
-    deleteMascotasUsuario,
-    subirImagenUsuario,
-    subirImagenMascota // ✅ ahora también mascotas
 };
 
 export default API;
