@@ -13,8 +13,21 @@ import {
 import { useTheme } from '@/context/ThemeContext';
 import * as ImagePicker from 'expo-image-picker';
 import { Heart, MapPin, ArrowRight, Warning, Plus, X } from 'phosphor-react-native';
+import Toast from 'react-native-toast-message';
 
-export default function CreateMascotaCard() {
+interface Mascota {
+  nombre: string;
+  especie: string;
+  sexo: string;
+  raza: string;
+  imagen?: string;
+}
+
+interface Props {
+  onMascotaCreada: (nuevaMascota: Mascota) => void;
+}
+
+export default function CreateMascotaCard({ onMascotaCreada }: Props) {
   const theme = useTheme();
   const isDark = theme === 'dark';
   const styles = createStyles(isDark);
@@ -27,7 +40,7 @@ export default function CreateMascotaCard() {
   });
   const [imagen, setImagen] = useState<string | null>(null);
 
-  const handleOpenModal = () => setModalVisible(true);
+  const handleOpenModal = () => setModalVisible(true);  
   const handleCloseModal = () => {
     setModalVisible(false);
     setForm({ nombre: '', especie: '', sexo: '', raza: '' });
@@ -73,7 +86,7 @@ export default function CreateMascotaCard() {
             </View>
           </View>
         </View>
-      </TouchableOpacity>
+      </TouchableOpacity>    
 
       <Modal visible={modalVisible} transparent animationType="fade">
         <View style={styles.modalOverlay}>
@@ -122,12 +135,45 @@ export default function CreateMascotaCard() {
                 value={form.raza}
                 onChangeText={(text) => setForm({ ...form, raza: text })}
               />
+              <Pressable 
+                style={styles.actionButton} 
+                onPress={() => {
+                  if (!form.nombre || !form.especie) {
+                    Toast.show({
+                      type: 'error',
+                      text1: 'Campos obligatorios',
+                      text2: 'Nombre y especie son requeridos',
+                    });
+                    return;
+                  }
 
-              <Pressable style={styles.actionButton} onPress={() => {
-                // Acá podrías subir a la API si querés
-                console.log('Enviar mascota:', { ...form, imagen });
-                handleCloseModal();
-              }}>
+                   // Crear el objeto mascota
+                  const nuevaMascota = {
+                    ...form,
+                    imagen: imagen || undefined
+                  };
+                  
+                  // Llamar a la función callback
+                  onMascotaCreada(nuevaMascota);
+                  
+                  // Cerrar el modal y limpiar el formulario
+                  handleCloseModal();
+                  
+                  // Mostrar mensaje de éxito
+                  Toast.show({
+                    type: 'success',
+                    text1: 'Mascota creada',
+                    text2: `${form.nombre} ha sido agregada`,
+                  });
+
+                  if (!form.nombre || !form.especie) {
+                    alert('Nombre y especie son obligatorios'); // Mensaje de error
+                    return; // Detiene la ejecución si falta algún campo
+                  }
+                  console.log('Enviar mascota:', { ...form, imagen }); // Simula envío a API
+                  handleCloseModal(); // Cierra el modal solo si pasa la validación
+                }}
+              >
                 <Text style={styles.actionText}>Crear Mascota</Text>
               </Pressable>
             </ScrollView>
@@ -137,7 +183,6 @@ export default function CreateMascotaCard() {
     </>
   );
 }
-
 const createStyles = (isDark: boolean) =>
   StyleSheet.create({
     card: {

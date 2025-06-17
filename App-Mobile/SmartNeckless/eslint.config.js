@@ -1,10 +1,16 @@
-// https://docs.expo.dev/guides/using-eslint/
-const { defineConfig } = require('eslint/config');
-const expoConfig = require('eslint-config-expo/flat');
+// eslint.config.js
+const { defineConfig } = require("eslint/config");
+const expoConfig = require("eslint-config-expo/flat");
 
 module.exports = defineConfig([
-  expoConfig,
   {
-    ignores: ['dist/*'],
+    ...expoConfig[0], // hereda la config base
+    rules: {
+      ...expoConfig[0].rules,
+      "no-var": "off", // desactiva la regla que impide usar var
+    },
+  },
+  {
+    ignores: ["dist/*"],
   },
 ]);
