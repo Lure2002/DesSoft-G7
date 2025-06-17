@@ -26,26 +26,7 @@ const response = (res, statusCode, reasonPhrase, body) => {
   });
 };
 
-app.post('/usuarios', async (req, res) => {
-  try {
-    const { nombre, email, password } = req.body;
-    const passwordHasheado = await bcrypt.hash(password, 10);
-    const nuevo = await prisma.usuarios.create({
-      data: {
-        nombre,
-        email,
-        hash_contrasenia: passwordHasheado
-      }
-    });
-    return response(res, 201, 'Created', {
-      id: nuevo.id, nombre: nuevo.nombre, email: nuevo.email
-    });
-  } catch (error) {
-    return response(res, 500, 'Internal Server Error', { error: error.message });
-  }
-});
-
-app.post('/usuarios/login', async (req, res) => {
+app.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
     const usuario = await prisma.usuario.findUnique({ 
@@ -70,16 +51,32 @@ app.post('/usuarios/login', async (req, res) => {
   }
 });
 
-app.get('/usuarios', async (req, res) => {
+app.post('/register', async (req, res) => {
   try {
-    const usuarios = await prisma.usuario.findMany();
-    return response(res, 200, 'OK', usuarios);
+    const { nombre, email, password } = req.body;
+    const usuario = await prisma.usuario.findUnique({ 
+      where: { email }
+    });
+    if (usuario) {
+      return response(res, 401, 'Existing User', { error: 'Usuario existente' });
+    }
+    const passwordHasheado = await bcrypt.hash(password, 10);
+    const nuevo = await prisma.usuarios.create({
+      data: {
+        nombre,
+        email,
+        hash_contrasenia: passwordHasheado
+      }
+    });
+    return response(res, 201, 'Created', {
+      id: nuevo.id, nombre: nuevo.nombre, email: nuevo.email
+    });
   } catch (error) {
     return response(res, 500, 'Internal Server Error', { error: error.message });
   }
 });
 
-app.get('/usuarios/:id', async (req, res) => {
+app.get('/usuario/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const usuario = await prisma.usuario.findUnique({
@@ -96,7 +93,7 @@ app.get('/usuarios/:id', async (req, res) => {
   }
 });
 
-app.delete('/usuarios/:id', async (req, res) => {
+app.delete('/usuario/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const usuario = await prisma.usuario.delete({
@@ -108,7 +105,7 @@ app.delete('/usuarios/:id', async (req, res) => {
   }
 });
 
-app.get('/usuarios/:id/mascotas', async (req, res) => {
+app.get('/usuario/:id/mascotas', async (req, res) => {
   try {
     const { id } = req.params;
     const usuario = await prisma.usuario.findUnique({
@@ -126,28 +123,57 @@ app.get('/usuarios/:id/mascotas', async (req, res) => {
   }
 });
 
-app.post('/mascotas', async (req, res) => {
+app.get('/usuario/:id/mascota/:idMascota', async (req, res) => {
   try {
-    const { nombre, id_raza, id_especie, id_user, pulsaciones, estado_ansiedad, latitud, longitud } = req.body;
-    const nuevaMascota = await prisma.mascotas.create({
+    const { id, idMascota } = req.params;
+    const mascota = await prisma.mascota.findUnique({
+      where: { id: Number(idMascota), id_user: Number(id) }
+    });
+
+    if (!usuario) {
+      return response(res, 404, 'Not Found', { error: 'Mascota no encontrada' });
+    }
+
+    return response(res, 200, 'OK', mascota);
+  } catch (error) {
+    return response(res, 500, 'Internal Server Error', { error: error.message });
+  }
+});
+
+app.post('/mascota', async (req, res) => {
+  try {
+    const {
+      nombre,
+      id_raza,
+      id_especie,
+      id_user,
+      pulsaciones,
+      estado,
+      latitud,
+      longitud,
+      sexo
+    } = req.body;
+
+    const nuevaMascota = await prisma.mascota.create({
       data: {
         nombre,
-        raza: {
-          connect: { id: id_raza }
-        },
-        especie: {
-          connect: { id: id_especie }
-        },
         pulsaciones,
-        estado_ansiedad,
+        estado,
         latitud,
         longitud,
+        sexo,
+        ...(id_raza && {
+          raza: { connect: { id: id_raza } }
+        }),
+        ...(id_especie && {
+          especie: { connect: { id: id_especie } }
+        }),
         usuario: {
           connect: { id: id_user }
         }
       }
     });
-    
+
     return response(res, 201, 'Created', nuevaMascota);
   } catch (error) {
     return response(res, 500, 'Internal Server Error', { error: error.message });
@@ -157,22 +183,10 @@ app.post('/mascotas', async (req, res) => {
 app.delete('/mascotas/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const mascota = await prisma.mascotas.delete({
+    const mascota = await prisma.mascota.delete({
       where: { id: Number(id) }
     });
     return response(res, 200, 'OK', mascota);
-  } catch (error) {
-    return response(res, 500, 'Internal Server Error', { error: error.message });
-  }
-});
-
-app.delete('/usuarios/:id/mascotas', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const mascotas = await prisma.mascotas.deleteMany({
-      where: { id_user: Number(id) }
-    });
-    return response(res, 200, 'OK', mascotas);
   } catch (error) {
     return response(res, 500, 'Internal Server Error', { error: error.message });
   }
