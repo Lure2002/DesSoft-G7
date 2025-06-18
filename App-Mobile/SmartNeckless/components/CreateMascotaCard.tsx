@@ -134,11 +134,12 @@ export default function CreateMascotaCard({ onMascotaCreada }: Props) {
                       onChangeText={(text) => setForm({ ...form, nombre: text })}
                     />
                     <Picker style={styles.input}
+                      selectedValue={form.sexo}
+                      onValueChange={(itemValue: string) => setForm({ ...form, sexo: itemValue })}
                       // style={{ placeholder:{color: isDark ? '#fff' : '#000'} }}
                       // placeholder={{label:"Seleccionar Sexo", value:"", key: ""}}
                       // value={form.sexo}
-                      selectedValue={form.sexo}
-                      onValueChange={(itemValue: string) => setForm({ ...form, sexo: itemValue })}
+                      
                       // items={[
                       //   {label:"Macho", value:"MACHO", key: "MACHO"},
                       //   {label:"Hembra", value:"HEMBRA", key: "HEMBRA"}
@@ -148,22 +149,38 @@ export default function CreateMascotaCard({ onMascotaCreada }: Props) {
                       <Picker.Item label="Macho" value="MACHO" key="MACHO" />
                       <Picker.Item label="Hembra" value="HEMBRA" key="HEMBRA" />
                     </Picker>
-                    <RNPickerSelect
+                    <Picker style={styles.input}
+                      selectedValue={form.especie}
+                      onValueChange={(itemValue: string) => setForm({ ...form, especie: itemValue })}>
+                      <Picker.Item label="Seleccionar Especie" value="" key="" />
+                      {especies.map((item) => (
+                        <Picker.Item label={item.label} value={item.value} key={item.key} />
+                      ))}
+                    </Picker>
+                    {/* <RNPickerSelect
                       style={{ placeholder:{color: isDark ? '#fff' : '#000'} }}
                       placeholder={{label:"Seleccionar Especie", value:"", key: ""}}
                       value={form.especie}
                       onValueChange={(itemValue: string) => setForm({ ...form, especie: itemValue })}
                       items={[...especies]}
                     >
-                    </RNPickerSelect>
-                    <RNPickerSelect
+                    </RNPickerSelect> */}
+                    <Picker style={styles.input}
+                      selectedValue={form.raza}
+                      onValueChange={(itemValue: string) => setForm({ ...form, raza: itemValue })}>
+                      <Picker.Item label="Seleccionar Raza" value="" key="" />
+                      {razas.map((item) => (
+                        <Picker.Item label={item.label} value={item.value} key={item.key} />
+                      ))}
+                    </Picker>
+                    {/* <RNPickerSelect
                       style={{ placeholder:{color: isDark ? '#fff' : '#000'} }}
                       placeholder={{label:"Seleccionar Raza", value:"", key: ""}}
                       value={form.raza}
                       onValueChange={(itemValue: string) => setForm({ ...form, raza: itemValue })}
                       items={[...razas]}
                     >
-                    </RNPickerSelect>
+                    </RNPickerSelect> */}
                     <Pressable
                       style={styles.actionButton}
                       onPress={() => {
@@ -270,8 +287,7 @@ const createStyles = (isDark: boolean) =>
     statusItemEnd: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 4,
-      marginLeft: 'auto',
+      gap: 4
     },
     modalOverlay: {
       flex: 1,

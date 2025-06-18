@@ -35,17 +35,6 @@ export default function DetalleMascota() {
                     <Text style={styles.statusText}>{temperatura}℃</Text>
                 </View>
             </View>
-            <MapView
-                style={styles.map}
-                initialRegion={{
-                    latitude: latitud,
-                    longitude: longitud,
-                    latitudeDelta: 0.01,
-                    longitudeDelta: 0.01,
-                }}
-            >
-                <Marker coordinate={{ latitude: latitud, longitude: longitud }} />
-            </MapView>
         </View>
     );
 }

@@ -46,8 +46,8 @@ model Raza {
   especieId              Int
   especie                Especie     @relation(fields: [especieId], references: [id])
   mascotas               Mascota[]
-  temperaturaNormalMin   Float?
-  temperaturaNormalMax   Float?
-  pulsacionesNormalesMin Int?
-  pulsacionesNormalesMax Int?
+  temp_min               Float?
+  temp_max               Float?
+  bpm_min                Int?
+  bpm_max                Int?
 }
