@@ -10,7 +10,7 @@ app.use(express.json());
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || origin.startsWith('http://localhost')) {
+    if (!origin || origin.includes('http://localhost')) {
       return callback(null, true);
     }
     return callback(new Error('No autorizado por CORS'));
@@ -29,11 +29,12 @@ const response = (res, statusCode, reasonPhrase, body) => {
 app.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log('Login attempt:', { email, password });
     const usuario = await prisma.usuario.findUnique({ 
       where: { email },
       include: { mascotas: true } 
     });
-
+    console.log('Usuario encontrado:', usuario);
     if (!usuario) {
       return response(res, 404, 'Not Found', { error: 'Usuario no encontrado' });
     }
@@ -42,11 +43,13 @@ app.post('/login', async (req, res) => {
     if (!passwordValido) {
       return response(res, 401, 'Unauthorized', { error: 'Contraseña incorrecta' });
     }
+    console.log('Contraseña válida para el usuario:', usuario.email);
 
     return response(res, 200, 'OK', {
       id: usuario.id, nombre: usuario.nombre, email: usuario.email, mascotas: usuario.mascotas
     });
   } catch (error) {
+    console.error('Error en el login:', error);
     return response(res, 500, 'Internal Server Error', { error: error.message });
   }
 });
