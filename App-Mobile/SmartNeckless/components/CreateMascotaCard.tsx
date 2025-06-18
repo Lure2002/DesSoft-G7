@@ -8,12 +8,12 @@ import {
   TextInput,
   Image,
   Pressable,
-  ScrollView,
 } from 'react-native';
 import { useTheme } from '@/context/ThemeContext';
 import * as ImagePicker from 'expo-image-picker';
-import { Heart, MapPin, ArrowRight, Warning, Plus, X } from 'phosphor-react-native';
+import { Heart, MapPin, ArrowRight, Thermometer, Plus, X } from 'phosphor-react-native';
 import Toast from 'react-native-toast-message';
+import { KeyboardAvoidingView, Platform, ScrollView, TouchableWithoutFeedback, Keyboard } from 'react-native';
 
 interface Mascota {
   nombre: string;
@@ -40,34 +40,22 @@ export default function CreateMascotaCard({ onMascotaCreada }: Props) {
   });
   const [imagen, setImagen] = useState<string | null>(null);
 
-  const handleOpenModal = () => setModalVisible(true);  
+  const handleOpenModal = () => setModalVisible(true);
   const handleCloseModal = () => {
     setModalVisible(false);
     setForm({ nombre: '', especie: '', sexo: '', raza: '' });
-    setImagen(null);
-  };
-
-  const handleSeleccionarImagen = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 0.8,
-    });
-
-    if (!result.canceled && result.assets.length > 0) {
-      setImagen(result.assets[0].uri);
-    }
   };
 
   return (
     <>
       <TouchableOpacity style={styles.card} onPress={handleOpenModal}>
-        <TouchableOpacity style={styles.imageWrapper}>
+        <View style={styles.imageWrapper}>
           <Plus size={48} color={isDark ? '#fff' : '#000'} weight="regular" />
-        </TouchableOpacity>
+        </View>
 
         <View style={styles.info}>
           <Text style={styles.nombre}>{"Nueva Mascota"}</Text>
-          <Text style={styles.raza}>{" Raza"}</Text>
+          <Text style={styles.raza}>{"Raza"}</Text>
 
           <View style={styles.statusRow}>
             <View style={styles.statusItem}>
@@ -76,7 +64,7 @@ export default function CreateMascotaCard({ onMascotaCreada }: Props) {
             </View>
 
             <View style={styles.statusItem}>
-              <Warning size={16} color="#ffa502" />
+              <Thermometer size={16} color="#5099ff" />
               <Text style={styles.statusText}>{" - "}</Text>
             </View>
 
@@ -86,99 +74,107 @@ export default function CreateMascotaCard({ onMascotaCreada }: Props) {
             </View>
           </View>
         </View>
-      </TouchableOpacity>    
+      </TouchableOpacity>
 
       <Modal visible={modalVisible} transparent animationType="fade">
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <TouchableOpacity style={styles.closeButton} onPress={handleCloseModal}>
-              <X size={24} color={isDark ? '#fff' : '#000'} />
-            </TouchableOpacity>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1 }}
+        >
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+              <View style={styles.modalOverlay}>
+                <View style={styles.modalContent}>
+                  <TouchableOpacity style={styles.closeButton} onPress={handleCloseModal}>
+                    <X size={24} color={isDark ? '#fff' : '#000'} />
+                  </TouchableOpacity>
 
-            <ScrollView contentContainerStyle={{ alignItems: 'center' }}>
-              <TouchableOpacity onPress={handleSeleccionarImagen}>
-                {imagen ? (
-                  <Image source={{ uri: imagen }} style={styles.modalImage} />
-                ) : (
-                  <View style={[styles.modalImage, styles.placeholder]}>
-                    <Plus size={32} color="#888" />
-                    <Text style={{ color: '#888', marginTop: 4 }}>Agregar imagen</Text>
+                  <View style={{ alignItems: 'center' }}>
+                    {
+                      form.especie == 'perro' ?
+                        (<Image source={require("@/assets/images/perro.jpg")} style={styles.modalImage} />) : 
+                        (form.especie == 'gato' ?
+                          (<Image source={require("@/assets/images/gato.jpeg")} style={styles.modalImage} />) :
+                          (<View style={[styles.modalImage, styles.placeholder]}>
+                            <Plus size={32} color="#888" />
+                          </View>))
+                    }
+
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Nombre"
+                      placeholderTextColor="#888"
+                      value={form.nombre}
+                      onChangeText={(text) => setForm({ ...form, nombre: text })}
+                    />
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Especie"
+                      placeholderTextColor="#888"
+                      value={form.especie}
+                      onChangeText={(text) => setForm({ ...form, especie: text })}
+                    />
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Sexo"
+                      placeholderTextColor="#888"
+                      value={form.sexo}
+                      onChangeText={(text) => setForm({ ...form, sexo: text })}
+                    />
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Raza"
+                      placeholderTextColor="#888"
+                      value={form.raza}
+                      onChangeText={(text) => setForm({ ...form, raza: text })}
+                    />
+                    <Pressable
+                      style={styles.actionButton}
+                      onPress={() => {
+                        if (!form.nombre || !form.especie) {
+                          Toast.show({
+                            type: 'error',
+                            text1: 'Campos obligatorios',
+                            text2: 'Nombre y especie son requeridos',
+                          });
+                          return;
+                        }
+
+                        // Crear el objeto mascota
+                        const nuevaMascota = {
+                          ...form,
+                          imagen: imagen || undefined
+                        };
+
+                        // Llamar a la función callback
+                        onMascotaCreada(nuevaMascota);
+
+                        // Cerrar el modal y limpiar el formulario
+                        handleCloseModal();
+
+                        // Mostrar mensaje de éxito
+                        Toast.show({
+                          type: 'success',
+                          text1: 'Mascota creada',
+                          text2: `${form.nombre} ha sido agregada`,
+                        });
+
+                        if (!form.nombre || !form.especie) {
+                          alert('Nombre y especie son obligatorios'); // Mensaje de error
+                          return; // Detiene la ejecución si falta algún campo
+                        }
+                        console.log('Enviar mascota:', { ...form, imagen }); // Simula envío a API
+                        handleCloseModal(); // Cierra el modal solo si pasa la validación
+                      }}
+                    >
+                      <Text style={styles.actionText}>Crear Mascota</Text>
+                    </Pressable>
                   </View>
-                )}
-              </TouchableOpacity>
-
-              <TextInput
-                style={styles.input}
-                placeholder="Nombre"
-                placeholderTextColor="#888"
-                value={form.nombre}
-                onChangeText={(text) => setForm({ ...form, nombre: text })}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Especie"
-                placeholderTextColor="#888"
-                value={form.especie}
-                onChangeText={(text) => setForm({ ...form, especie: text })}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Sexo"
-                placeholderTextColor="#888"
-                value={form.sexo}
-                onChangeText={(text) => setForm({ ...form, sexo: text })}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Raza"
-                placeholderTextColor="#888"
-                value={form.raza}
-                onChangeText={(text) => setForm({ ...form, raza: text })}
-              />
-              <Pressable 
-                style={styles.actionButton} 
-                onPress={() => {
-                  if (!form.nombre || !form.especie) {
-                    Toast.show({
-                      type: 'error',
-                      text1: 'Campos obligatorios',
-                      text2: 'Nombre y especie son requeridos',
-                    });
-                    return;
-                  }
-
-                   // Crear el objeto mascota
-                  const nuevaMascota = {
-                    ...form,
-                    imagen: imagen || undefined
-                  };
-                  
-                  // Llamar a la función callback
-                  onMascotaCreada(nuevaMascota);
-                  
-                  // Cerrar el modal y limpiar el formulario
-                  handleCloseModal();
-                  
-                  // Mostrar mensaje de éxito
-                  Toast.show({
-                    type: 'success',
-                    text1: 'Mascota creada',
-                    text2: `${form.nombre} ha sido agregada`,
-                  });
-
-                  if (!form.nombre || !form.especie) {
-                    alert('Nombre y especie son obligatorios'); // Mensaje de error
-                    return; // Detiene la ejecución si falta algún campo
-                  }
-                  console.log('Enviar mascota:', { ...form, imagen }); // Simula envío a API
-                  handleCloseModal(); // Cierra el modal solo si pasa la validación
-                }}
-              >
-                <Text style={styles.actionText}>Crear Mascota</Text>
-              </Pressable>
+                </View>
+              </View>
             </ScrollView>
-          </View>
-        </View>
+          </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
       </Modal>
     </>
   );

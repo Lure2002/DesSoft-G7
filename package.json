@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "getenv": "^2.0.0"
+  }
+}

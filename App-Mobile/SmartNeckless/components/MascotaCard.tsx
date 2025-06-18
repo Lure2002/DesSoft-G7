@@ -26,63 +26,43 @@ export default function MascotaCard({ mascota }: Props) {
   const [modalVisible, setModalVisible] = useState(false);
   const [mascotaActual, setMascotaActual] = useState(mascota);
 
-  const handleNavigate = () => router.push(`/mascotas?id=${mascotaActual.id}`);
-
-  const handleImagePress = () => setModalVisible(true);
+  const handleNavigate = () => router.push({
+    pathname: "/mascotas/[id]",
+    params: { id: mascotaActual.id.toString() },
+  });;
 
   return (
-    <>
-      <TouchableOpacity onPress={handleNavigate} style={styles.card}>
-        <TouchableOpacity onPress={handleImagePress} style={styles.imageWrapper}>
-          {mascotaActual.imagen_url ? (
-            <Image source={{ uri: mascotaActual.imagen_url }} style={styles.image} />
-          ) : mascotaActual.especie === 'gato' ? (
-            <Cat size={48} color={isDark ? '#fff' : '#000'} weight="regular" />
-          ) : (
-            <Dog size={48} color={isDark ? '#fff' : '#000'} weight="regular" />
-          )}
-        </TouchableOpacity>
+    <TouchableOpacity onPress={handleNavigate} style={styles.card}>
+      <View style={styles.imageWrapper}>
+        {mascotaActual.especie === 'gato' ? (
+          <Cat size={48} color={isDark ? '#fff' : '#000'} weight="regular" />
+        ) : (
+          <Dog size={48} color={isDark ? '#fff' : '#000'} weight="regular" />
+        )}
+      </View>
 
-        <View style={styles.info}>
-          <Text style={styles.nombre}>{mascotaActual.nombre}</Text>
-          <Text style={styles.raza}>{mascotaActual.raza}</Text>
+      <View style={styles.info}>
+        <Text style={styles.nombre}>{mascotaActual.nombre}</Text>
+        <Text style={styles.raza}>{mascotaActual.raza}</Text>
 
-          <View style={styles.statusRow}>
-            <View style={styles.statusItem}>
-              <Heart size={16} color="#ff4757" />
-              <Text style={styles.statusText}>{mascotaActual.pulsaciones} bpm</Text>
-            </View>
+        <View style={styles.statusRow}>
+          <View style={styles.statusItem}>
+            <Heart size={16} color="#ff4757" />
+            <Text style={styles.statusText}>{mascotaActual.pulsaciones} bpm</Text>
+          </View>
 
-            <View style={styles.statusItem}>
-              <Warning size={16} color="#ffa502" />
-              <Text style={styles.statusText}>{mascotaActual.estado_ansiedad}</Text>
-            </View>
+          <View style={styles.statusItem}>
+            <Warning size={16} color="#ffa502" />
+            <Text style={styles.statusText}>{mascotaActual.temperatura}</Text>
+          </View>
 
-            <View style={styles.statusItem}>
-              <MapPin size={16} color="#0a84ff" />
-              <ArrowRight size={16} color="#0a84ff" />
-            </View>
+          <View style={styles.statusItem}>
+            <MapPin size={16} color="#0a84ff" />
+            <ArrowRight size={16} color="#0a84ff" />
           </View>
         </View>
-      </TouchableOpacity>
-
-      <Modal visible={modalVisible} transparent animationType="fade">
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            {mascotaActual.imagen_url ? (
-              <Image source={{ uri: mascotaActual.imagen_url }} style={styles.modalImage} />
-            ) : (
-              <Text style={{ color: isDark ? '#fff' : '#000' }}>Sin imagen</Text>
-            )}
-            <View style={styles.modalActions}>
-              <Pressable onPress={() => setModalVisible(false)} style={styles.actionButton}>
-                <Text style={styles.actionText}>Cerrar</Text>
-              </Pressable>
-            </View>
-          </View>
-        </View>
-      </Modal>
-    </>
+      </View>
+    </TouchableOpacity>
   );
 }
 

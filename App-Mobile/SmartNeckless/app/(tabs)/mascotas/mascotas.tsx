@@ -27,7 +27,7 @@ export default function Pets() {
         pulsaciones: 0,
         latitud: 0,
         longitud: 0,
-        estado_ansiedad: "Normal",
+        temperatura: 34,
         ultimaActualizacion: new Date().toISOString()
       };
 

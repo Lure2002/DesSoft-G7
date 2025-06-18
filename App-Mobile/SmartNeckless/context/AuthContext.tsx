@@ -6,11 +6,10 @@ export interface Mascota {
   especie: string;
   sexo: string;
   raza: string;
-  imagen_url?: string;
   pulsaciones: number;
   latitud: number;
   longitud: number;
-  estado_ansiedad: string; // "Alta", "Media", etc.
+  temperatura: number;
   ultimaActualizacion: string;
 }
 
@@ -18,7 +17,6 @@ interface User {
   id: number;
   nombre: string;
   email: string;
-  imagen_url?: string;
   mascotas: Mascota[];
 }
 

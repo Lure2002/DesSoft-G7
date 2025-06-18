@@ -1,9 +1,10 @@
 import { AuthProvider } from "@/context/AuthContext";
-import { ThemeProvider } from "@/context/ThemeContext"; // Importá el provider
+import { ThemeProvider, useTheme } from "@/context/ThemeContext"; // Importá el provider
 import { Stack } from "expo-router";
 import { StatusBar } from 'expo-status-bar';
 
 export default function RootLayout() {
+  const theme = useTheme();
   return (
     <AuthProvider>
       <ThemeProvider>
@@ -12,7 +13,7 @@ export default function RootLayout() {
           <Stack.Screen name="login" options={{ headerShown: false }} />
           <Stack.Screen name="+not-found" />
         </Stack>
-        <StatusBar style="light" />
+        <StatusBar style={theme} />
       </ThemeProvider>
     </AuthProvider>
   );
