@@ -198,7 +198,7 @@ app.delete('/mascotas/:id', async (req, res) => {
 app.get('/razas/:idEspecie', async (req, res) => {
   try {
     const { idEspecie } = req.params;
-    const razas = prisma.raza.findMany({
+    const razas = await prisma.raza.findMany({
       where: { id_especie: Number(idEspecie) }
     });
     return response(res, 200, 'OK', razas);
