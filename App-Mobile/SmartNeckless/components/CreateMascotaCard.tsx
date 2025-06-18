@@ -67,6 +67,9 @@ export default function CreateMascotaCard({ onMascotaCreada }: Props) {
   useEffect(() => {
     setLoading(true);
     if (form.especie) {
+      if (form.especie === 'Seleccionar Especie') {
+        setForm({ ...form, raza: '' });
+      }
       API.getRazas(form.especie).then(response => setRazas(response.body.map((raza: any) => {return {label: raza.nombre, value: raza.id, key: raza.id}})))
     }
     setLoading(false);
