@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { use, useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -10,11 +10,12 @@ import {
   Pressable,
 } from 'react-native';
 import { useTheme } from '@/context/ThemeContext';
-import { Heart, MapPin, ArrowRight, Thermometer, Plus, X } from 'phosphor-react-native';
+import { Heart, MapPin, ArrowRight, Thermometer, Plus, X, Spinner } from 'phosphor-react-native';
 import Toast from 'react-native-toast-message';
 import { KeyboardAvoidingView, Platform, ScrollView, TouchableWithoutFeedback, Keyboard } from 'react-native';
-import { Picker, PickerIOS } from '@react-native-picker/picker';
+import RNPickerSelect from 'react-native-picker-select';
 import { ItemValue } from '@react-native-picker/picker/typings/Picker';
+import API from '@/services/apiSmartNeckless';
 
 interface Mascota {
   nombre: string;
@@ -42,12 +43,21 @@ export default function CreateMascotaCard({ onMascotaCreada }: Props) {
     raza: '',
   });
   const [imagen, setImagen] = useState<string | null>(null);
-
+  const [loading, setLoading] = useState(false);
   const handleOpenModal = () => setModalVisible(true);
   const handleCloseModal = () => {
     setModalVisible(false);
     setForm({ nombre: '', especie: '', sexo: '', raza: '' });
   };
+
+  useEffect(() => {
+    setLoading(true);
+    API.getRazas().then(response => setRazas(response));
+    API.getEspecies().then(response => setEspecies(response))
+    setLoading(false);
+  }, []);
+
+  if (loading) return <Spinner size="large" />;
 
   return (
     <>
@@ -116,31 +126,28 @@ export default function CreateMascotaCard({ onMascotaCreada }: Props) {
                       value={form.especie}
                       onChangeText={(text) => setForm({ ...form, especie: text })}
                     />
-                    <View style={{ width: 200, alignSelf: 'center', marginBottom: 12 }}>
-                      <Picker
-                        selectedValue={form.sexo}
-                        style={{
-                          width: '100%',
-                          color: isDark ? '#fff' : '#000',
-                        }}
-                        onValueChange={(itemValue: string) =>
-                          setForm({ ...form, sexo: itemValue })
-                        }
-                      >
-                        <Picker.Item label="Seleccionar sexo" value="" />
-                        <Picker.Item label="Macho" value="MACHO" />
-                        <Picker.Item label="Hembra" value="HEMBRA" />
-                        <Picker.Item label="Otro" value="OTRO" />
-                      </Picker>
-                    </View>
-
-                    <TextInput
-                      style={styles.input}
-                      placeholder="Raza"
-                      placeholderTextColor="#888"
-                      value={form.raza}
-                      onChangeText={(text) => setForm({ ...form, raza: text })}
-                    />
+                    <RNPickerSelect
+                      placeholder="Seleccionar Sexo"
+                      value={form.sexo}
+                      onValueChange={(itemValue: string) => setForm({ ...form, sexo: itemValue })}
+                      items={[
+                        {label:"Seleccionar sexo", value:""},
+                        {label:"Macho", value:"MACHO"},
+                        {label:"Hembra", value:"HEMBRA"}
+                      ]}
+                    >
+                    </RNPickerSelect>
+                    <RNPickerSelect
+                      placeholder="Seleccionar Raza"
+                      value={form.sexo}
+                      onValueChange={(itemValue: string) => setForm({ ...form, sexo: itemValue })}
+                      items={[
+                        {label:"Seleccionar sexo", value:""},
+                        {label:"Macho", value:"MACHO"},
+                        {label:"Hembra", value:"HEMBRA"}
+                      ]}
+                    >
+                    </RNPickerSelect>
                     <Pressable
                       style={styles.actionButton}
                       onPress={() => {

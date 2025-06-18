@@ -23,18 +23,16 @@ export default function MascotaCard({ mascota }: Props) {
   const theme = useTheme();
   const isDark = theme === 'dark';
   const styles = createStyles(isDark);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [mascotaActual, setMascotaActual] = useState(mascota);
 
   const handleNavigate = () => router.push({
     pathname: "/(tabs)/mascotas/[id]",
-    params: { id: mascotaActual.id.toString() },
+    params: { id: mascota.id.toString() },
   });;
 
   return (
     <TouchableOpacity onPress={handleNavigate} style={styles.card}>
       <View style={styles.imageWrapper}>
-        {mascotaActual.especie === 'gato' ? (
+        {mascota.especie === 'gato' ? (
           <Cat size={48} color={isDark ? '#fff' : '#000'} weight="regular" />
         ) : (
           <Dog size={48} color={isDark ? '#fff' : '#000'} weight="regular" />
@@ -42,18 +40,18 @@ export default function MascotaCard({ mascota }: Props) {
       </View>
 
       <View style={styles.info}>
-        <Text style={styles.nombre}>{mascotaActual.nombre}</Text>
-        <Text style={styles.raza}>{mascotaActual.raza}</Text>
+        <Text style={styles.nombre}>{mascota.nombre}</Text>
+        <Text style={styles.raza}>{mascota.raza}</Text>
 
         <View style={styles.statusRow}>
           <View style={styles.statusItem}>
             <Heart size={16} color="#ff4757" />
-            <Text style={styles.statusText}>{mascotaActual.pulsaciones} bpm</Text>
+            <Text style={styles.statusText}>{mascota.pulsaciones} bpm</Text>
           </View>
 
           <View style={styles.statusItem}>
             <Warning size={16} color="#ffa502" />
-            <Text style={styles.statusText}>{mascotaActual.temperatura}</Text>
+            <Text style={styles.statusText}>{mascota.temperatura}</Text>
           </View>
 
           <View style={styles.statusItem}>
