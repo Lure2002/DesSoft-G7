@@ -29,12 +29,17 @@ interface Props {
   onMascotaCreada: (nuevaMascota: Mascota) => void;
 }
 
+interface SelectItem {
+  label: string;
+  value: string;
+}
+
 export default function CreateMascotaCard({ onMascotaCreada }: Props) {
   const theme = useTheme();
   const isDark = theme === 'dark';
   const styles = createStyles(isDark);
-  const [razas, setRazas] = useState([])
-  const [especies, setEspecies] = useState([])
+  const [razas, setRazas] = useState<SelectItem[]>([]);
+  const [especies, setEspecies] = useState<SelectItem[]>([])
   const [modalVisible, setModalVisible] = useState(false);
   const [form, setForm] = useState({
     nombre: '',
@@ -52,8 +57,10 @@ export default function CreateMascotaCard({ onMascotaCreada }: Props) {
 
   useEffect(() => {
     setLoading(true);
-    API.getRazas().then(response => setRazas(response));
-    API.getEspecies().then(response => setEspecies(response))
+    API.getEspecies().then(response => setEspecies(response.body.map((especie: { nombre: string, id:number}) => {return {label: especie.nombre, value: especie.id}})))
+    if (form.especie) {
+      API.getRazas(form.especie).then(response => setRazas(response))
+    }
     setLoading(false);
   }, []);
 
@@ -119,33 +126,29 @@ export default function CreateMascotaCard({ onMascotaCreada }: Props) {
                       value={form.nombre}
                       onChangeText={(text) => setForm({ ...form, nombre: text })}
                     />
-                    <TextInput
-                      style={styles.input}
-                      placeholder="Especie"
-                      placeholderTextColor="#888"
-                      value={form.especie}
-                      onChangeText={(text) => setForm({ ...form, especie: text })}
-                    />
                     <RNPickerSelect
                       placeholder="Seleccionar Sexo"
                       value={form.sexo}
                       onValueChange={(itemValue: string) => setForm({ ...form, sexo: itemValue })}
                       items={[
-                        {label:"Seleccionar sexo", value:""},
+                        {label:"Seleccionar Sexo", value:""},
                         {label:"Macho", value:"MACHO"},
                         {label:"Hembra", value:"HEMBRA"}
                       ]}
                     >
                     </RNPickerSelect>
                     <RNPickerSelect
+                      placeholder="Seleccionar Especie"
+                      value={form.especie}
+                      onValueChange={(itemValue: string) => setForm({ ...form, especie: itemValue })}
+                      items={[{label:"Seleccionar Especie", value:""}]}
+                    >
+                    </RNPickerSelect>
+                    <RNPickerSelect
                       placeholder="Seleccionar Raza"
-                      value={form.sexo}
-                      onValueChange={(itemValue: string) => setForm({ ...form, sexo: itemValue })}
-                      items={[
-                        {label:"Seleccionar sexo", value:""},
-                        {label:"Macho", value:"MACHO"},
-                        {label:"Hembra", value:"HEMBRA"}
-                      ]}
+                      value={form.raza}
+                      onValueChange={(itemValue: string) => setForm({ ...form, raza: itemValue })}
+                      items={[{label:"Seleccionar Raza", value:""}]}
                     >
                     </RNPickerSelect>
                     <Pressable

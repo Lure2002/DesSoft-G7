@@ -81,6 +81,18 @@ async function deleteMascota(id) {
     .catch((err) => console.error(err));
 }
 
+async function getRazas(idEspecie) {
+  return fetch("https://dessoft-g7-ykag.onrender.com/razas/" + idEspecie)
+    .then((res) => res.json())
+    .catch((err) => console.error(err));
+}
+
+async function getEspecies() {
+  return fetch("https://dessoft-g7-ykag.onrender.com/especies")
+    .then((res) => res.json())
+    .catch((err) => console.error(err));
+}
+
 const API = {
   crearUsuario,
   loginUsuario,
@@ -90,6 +102,8 @@ const API = {
   getMascota,
   crearMascota,
   deleteMascota,
+  getRazas,
+  getEspecies
 };
 
 export default API;
