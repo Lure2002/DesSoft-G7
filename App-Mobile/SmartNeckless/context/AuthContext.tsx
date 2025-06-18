@@ -3,13 +3,14 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 export interface Mascota {
   id: number;
   nombre: string;
+  especie: string;
+  sexo: string;
   raza: string;
   imagen_url?: string;
   pulsaciones: number;
   latitud: number;
   longitud: number;
   estado_ansiedad: string; // "Alta", "Media", etc.
-  especie: string;
   ultimaActualizacion: string;
 }
 
@@ -25,12 +26,14 @@ interface AuthContextType {
   user: User | null;
   login: (user: User) => void;
   logout: () => void;
+  updateUser: (updatedUser: Partial<User>) => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   login: () => {},
   logout: () => {},
+  updateUser: () => {},
 });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -39,8 +42,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = (userData: User) => setUser(userData);
   const logout = () => setUser(null);
 
+  const updateUser = (updatedData: Partial<User>) => {
+  if (user) {
+    setUser({ ...user, ...updatedData });
+  }
+};
+
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout,  updateUser }}>
       {children}
     </AuthContext.Provider>
   );

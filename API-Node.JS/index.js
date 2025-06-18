@@ -1,9 +1,9 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
 const multer = require('multer');
-//const { bucket } = require('./firebase');
 
 const app = express();
 const prisma = new PrismaClient();
@@ -187,6 +187,7 @@ app.post('/mascotas', async (req, res) => {
     return response(res, 500, 'Internal Server Error', { error: error.message });
   }
 });
+
 
 app.delete('/mascotas/:id', async (req, res) => {
   try {

@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import * as FileSystem from 'expo-file-system';
-import * as MediaLibrary from 'expo-media-library';
 import {
   View,
   Text,
@@ -11,11 +9,9 @@ import {
   Pressable,
   Alert,
 } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/context/ThemeContext';
 import { Dog, Cat, Heart, MapPin, ArrowRight, Warning } from 'phosphor-react-native';
-import API from '@/services/apiSmartNeckless';
 import { Mascota } from '@/context/AuthContext';
 
 interface Props {
@@ -33,57 +29,6 @@ export default function MascotaCard({ mascota }: Props) {
   const handleNavigate = () => router.push(`/mascotas?id=${mascotaActual.id}`);
 
   const handleImagePress = () => setModalVisible(true);
-
-  const handleDescargarImagen = async () => {
-    if (!mascotaActual.imagen_url) return;
-  
-    const { status } = await MediaLibrary.requestPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permiso denegado', 'No se puede acceder a la galería.');
-      return;
-    }
-  
-    try {
-      const fileUri = FileSystem.documentDirectory + `mascota-${mascotaActual.id}.jpg`;
-      const download = await FileSystem.downloadAsync(mascotaActual.imagen_url, fileUri);
-      await MediaLibrary.saveToLibraryAsync(download.uri);
-      Alert.alert('Éxito', 'Imagen guardada en la galería.');
-    } catch (error) {
-      console.error('Error al guardar imagen:', error);
-      Alert.alert('Error', 'No se pudo guardar la imagen.');
-    }
-  };  
-
-  const handleCambiarImagen = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permiso denegado', 'Se necesita acceso a la galería.');
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 0.8,
-    });
-
-    if (!result.canceled && result.assets.length > 0) {
-      const image = result.assets[0];
-      try {
-        const res = await API.subirImagenMascota(mascotaActual.id, image.uri);
-        if (res.statusCode === 200) {
-          setMascotaActual((prev) => ({
-            ...prev,
-            imagen_url: res.body.imagen_url,
-          }));
-        } else {
-          Alert.alert('Error', res.body?.error || 'No se pudo subir la imagen');
-        }
-      } catch (err) {
-        console.error('Error al subir imagen:', err);
-        Alert.alert('Error', 'Falló la subida');
-      }
-    }
-  };
 
   return (
     <>
@@ -130,12 +75,6 @@ export default function MascotaCard({ mascota }: Props) {
               <Text style={{ color: isDark ? '#fff' : '#000' }}>Sin imagen</Text>
             )}
             <View style={styles.modalActions}>
-            <Pressable onPress={handleDescargarImagen} style={styles.actionButton}>
-              <Text style={styles.actionText}>Descargar</Text>
-            </Pressable>
-              <Pressable onPress={handleCambiarImagen} style={styles.actionButton}>
-                <Text style={styles.actionText}>Cambiar</Text>
-              </Pressable>
               <Pressable onPress={() => setModalVisible(false)} style={styles.actionButton}>
                 <Text style={styles.actionText}>Cerrar</Text>
               </Pressable>
