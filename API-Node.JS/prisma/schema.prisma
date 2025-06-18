@@ -8,17 +8,12 @@ datasource db {
 }
 
 model usuario {
-  id               Int        @id @default(autoincrement())
-  nombre           String     @db.VarChar(100)
-  email            String?    @unique @db.VarChar(100)
+  id               Int       @id @default(autoincrement())
+  nombre           String    @db.VarChar(100)
+  email            String?   @unique @db.VarChar(100)
   hash_contrasenia String
   imagen_url       String?
   mascotas         mascota[]
-}
-
-enum Sexo {
-  MACHO
-  HEMBRA
 }
 
 model mascota {
@@ -33,22 +28,32 @@ model mascota {
   longitud             Decimal?  @db.Decimal(11, 8)
   ultima_actualizacion DateTime? @default(now()) @db.Timestamp(6)
   sexo                 Sexo?
-  especie              especie? @relation(fields: [id_especie], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_especie")
-  raza                 raza?    @relation(fields: [id_raza], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_raza")
-  usuario              usuario  @relation(fields: [id_user], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  temperatura          Float?
+  especie              especie?  @relation(fields: [id_especie], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_especie")
+  raza                 raza?     @relation(fields: [id_raza], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_raza")
+  usuario              usuario   @relation(fields: [id_user], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_mascota_usuario")
 }
 
 model especie {
-  id       Int        @id @default(autoincrement())
-  nombre   String     @unique @db.VarChar(50)
+  id       Int       @id @default(autoincrement())
+  nombre   String    @unique @db.VarChar(50)
   mascotas mascota[]
   razas    raza[]
 }
 
 model raza {
-  id         Int        @id @default(autoincrement())
-  nombre     String     @db.VarChar(100)
+  id         Int       @id @default(autoincrement())
+  nombre     String    @db.VarChar(100)
   id_especie Int
+  temp_min   Float?
+  temp_max   Float?
+  bpm_min    Int?
+  bpm_max    Int?
   mascotas   mascota[]
-  especie    especie   @relation(fields: [id_especie], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  especie    especie   @relation(fields: [id_especie], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_raza_especie")
+}
+
+enum Sexo {
+  MACHO
+  HEMBRA
 }
