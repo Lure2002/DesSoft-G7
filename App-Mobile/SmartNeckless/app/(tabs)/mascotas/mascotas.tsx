@@ -30,6 +30,7 @@ export default function Pets() {
           text2: 'No se pudieron cargar las mascotas.',
         });
       });
+    setLoading(false);
   }, []);
 
   if (loading) return <Spinner size="large" />;
