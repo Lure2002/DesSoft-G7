@@ -37,7 +37,7 @@ interface SelectItem {
   key: string;
 }
 
-export default function CreateMascotaCard({ onMascotaCreada }: Props) {
+export default function CreateMascotaCard() {
   const theme = useTheme();
   const isDark = theme === 'dark';
   const styles = createStyles(isDark);
@@ -197,30 +197,18 @@ export default function CreateMascotaCard({ onMascotaCreada }: Props) {
                           return;
                         }
 
-                        // Crear el objeto mascota
-                        const nuevaMascota = {
-                          ...form,
-                        };
-
-                        // Llamar a la función callback
-                        onMascotaCreada(nuevaMascota);
-
-                        // Cerrar el modal y limpiar el formulario
-                        handleCloseModal();
-
+                        if (!form.nombre || !form.especie) {
+                          alert('Nombre y especie son obligatorios'); // Mensaje de error
+                          return; // Detiene la ejecución si falta algún campo
+                        }
+                        API.crearMascota(form.nombre, form.especie, form.raza, form.sexo, user?.id)
+                        handleCloseModal(); // Cierra el modal solo si pasa la validación
                         // Mostrar mensaje de éxito
                         Toast.show({
                           type: 'success',
                           text1: 'Mascota creada',
                           text2: `${form.nombre} ha sido agregada`,
                         });
-
-                        if (!form.nombre || !form.especie) {
-                          alert('Nombre y especie son obligatorios'); // Mensaje de error
-                          return; // Detiene la ejecución si falta algún campo
-                        }
-                        API.crearMascota(nuevaMascota.nombre, nuevaMascota.especie, nuevaMascota.raza, nuevaMascota.sexo, user?.id)
-                        handleCloseModal(); // Cierra el modal solo si pasa la validación
                       }}
                     >
                       <Text style={styles.actionText}>Crear Mascota</Text>

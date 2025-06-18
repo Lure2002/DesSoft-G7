@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useTheme } from '@/context/ThemeContext';
 import MascotaCard from '@/components/MascotaCard';
 import { useAuth } from '@/context/AuthContext';
 import CreateMascotaCard from '@/components/CreateMascotaCard';
 import Toast from 'react-native-toast-message';
+import API from '@/services/apiSmartNeckless';
 
 export default function Pets() {
   const theme = useTheme();
@@ -12,55 +13,28 @@ export default function Pets() {
   const { user, updateUser } = useAuth();
   const [mascotas, setMascotas] = useState(user?.mascotas || []);
 
-  const handleMascotaCreada = (nuevaMascota: {
-    nombre: string;
-    especie: string;
-    sexo: string;
-    raza: string;
-    imagen?: string;
-  }) => {
-    try {
-
-      const mascotaConId = {
-        ...nuevaMascota,
-        id: Date.now(), 
-        pulsaciones: 0,
-        latitud: 0,
-        longitud: 0,
-        temperatura: 34,
-        ultimaActualizacion: new Date().toISOString()
-      };
-
-      const updatedMascotas = [...mascotas, mascotaConId];
-      setMascotas(updatedMascotas);
-
-      if (updateUser && user) {
-        updateUser({
-          mascotas: updatedMascotas
+  useEffect(() => {
+    API.getMascotas(user?.id)
+      .then((response) => {
+        setMascotas(response.body);
+        updateUser({ ...user, mascotas: response.body });
+      })
+      .catch((error) => {
+        console.error('Error fetching mascotas:', error);
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: 'No se pudieron cargar las mascotas.',
         });
-      }
-
-      Toast.show({
-        type: 'exito',
-        text1: 'Mascota creada',
-        text2: `${nuevaMascota.nombre} ha sido agregada correctamente`,
       });
-    } catch (error) {
-      Toast.show({
-        type: 'error',
-        text1: 'Error',
-        text2: 'No se pudo guardar la mascota',
-      });
-      console.error('Error al guardar mascota:', error);
-    }
-  };
+  }, []);
 
   return (
     <View style={styles.container}>
       {mascotas.map((m, index) => (
         <MascotaCard key={m.id || `mascota-${index}`} mascota={m} />
       ))}
-      <CreateMascotaCard onMascotaCreada={handleMascotaCreada} />
+      <CreateMascotaCard />
     </View>
   );
 }
