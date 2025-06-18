@@ -117,9 +117,9 @@ export default function CreateMascotaCard({ onMascotaCreada }: Props) {
 
                   <View style={{ alignItems: 'center' }}>
                     {
-                      form.especie == 'perro' ?
+                      form.especie == 'Perro' ?
                         (<Image source={require("@/assets/images/perro.jpg")} style={styles.modalImage} />) : 
-                        (form.especie == 'gato' ?
+                        (form.especie == 'Gato' ?
                           (<Image source={require("@/assets/images/gato.jpeg")} style={styles.modalImage} />) :
                           (<View style={[styles.modalImage, styles.placeholder]}>
                             <Plus size={32} color="#888" />
