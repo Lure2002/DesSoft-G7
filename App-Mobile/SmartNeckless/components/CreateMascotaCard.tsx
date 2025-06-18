@@ -10,10 +10,11 @@ import {
   Pressable,
 } from 'react-native';
 import { useTheme } from '@/context/ThemeContext';
-import * as ImagePicker from 'expo-image-picker';
 import { Heart, MapPin, ArrowRight, Thermometer, Plus, X } from 'phosphor-react-native';
 import Toast from 'react-native-toast-message';
 import { KeyboardAvoidingView, Platform, ScrollView, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { Picker, PickerIOS } from '@react-native-picker/picker';
+import { ItemValue } from '@react-native-picker/picker/typings/Picker';
 
 interface Mascota {
   nombre: string;
@@ -31,6 +32,8 @@ export default function CreateMascotaCard({ onMascotaCreada }: Props) {
   const theme = useTheme();
   const isDark = theme === 'dark';
   const styles = createStyles(isDark);
+  const [razas, setRazas] = useState([])
+  const [especies, setEspecies] = useState([])
   const [modalVisible, setModalVisible] = useState(false);
   const [form, setForm] = useState({
     nombre: '',
@@ -79,8 +82,7 @@ export default function CreateMascotaCard({ onMascotaCreada }: Props) {
       <Modal visible={modalVisible} transparent animationType="fade">
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={{ flex: 1 }}
-        >
+          style={{ flex: 1 }}>
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
               <View style={styles.modalOverlay}>
@@ -114,13 +116,24 @@ export default function CreateMascotaCard({ onMascotaCreada }: Props) {
                       value={form.especie}
                       onChangeText={(text) => setForm({ ...form, especie: text })}
                     />
-                    <TextInput
-                      style={styles.input}
-                      placeholder="Sexo"
-                      placeholderTextColor="#888"
-                      value={form.sexo}
-                      onChangeText={(text) => setForm({ ...form, sexo: text })}
-                    />
+                    <View style={{ width: 200, alignSelf: 'center', marginBottom: 12 }}>
+                      <Picker
+                        selectedValue={form.sexo}
+                        style={{
+                          width: '100%',
+                          color: isDark ? '#fff' : '#000',
+                        }}
+                        onValueChange={(itemValue: string) =>
+                          setForm({ ...form, sexo: itemValue })
+                        }
+                      >
+                        <Picker.Item label="Seleccionar sexo" value="" />
+                        <Picker.Item label="Macho" value="MACHO" />
+                        <Picker.Item label="Hembra" value="HEMBRA" />
+                        <Picker.Item label="Otro" value="OTRO" />
+                      </Picker>
+                    </View>
+
                     <TextInput
                       style={styles.input}
                       placeholder="Raza"

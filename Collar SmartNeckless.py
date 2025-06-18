@@ -35,7 +35,7 @@ class CollarMascota:
         }
 
 # Función para obtener los IDs de las mascotas asociadas a un usuario
-def obtener_ids_mascotas(usuario_id, api_base_url="http://localhost:3000"):
+def obtener_ids_mascotas(usuario_id, api_base_url="https://dessoft-g7-ykag.onrender.com"):
     # Se construye la URL de la API para obtener las mascotas de un usuario
     url = f"{api_base_url}/usuarios/{usuario_id}/mascotas"
     try:
@@ -61,7 +61,7 @@ def obtener_ids_mascotas(usuario_id, api_base_url="http://localhost:3000"):
 # =========================== #
 
 USUARIO_ID = 1  # ID del usuario del que se quieren obtener las mascotas
-URL_API = "http://localhost:3000/datos"  # URL a la que se envían los datos simulados
+URL_API = "https://dessoft-g7-ykag.onrender.com/datos"  # URL a la que se envían los datos simulados
 INTERVALO_SEGUNDOS = 5  # Tiempo de espera entre cada envío de datos
 
 # =========================== #
