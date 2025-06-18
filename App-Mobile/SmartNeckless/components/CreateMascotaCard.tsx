@@ -203,7 +203,7 @@ export default function CreateMascotaCard() {
                           return; // Detiene la ejecución si falta algún campo
                         }
                         console.log("user", user)
-                        API.crearMascota(form.nombre, Number(form.especie), Number(form.raza), form.sexo, user?.id)
+                        API.crearMascota(form.nombre, Number(form.especie), Number(form.raza), form.sexo, user?.id);
                         handleCloseModal(); // Cierra el modal solo si pasa la validación
                         // Mostrar mensaje de éxito
                         Toast.show({

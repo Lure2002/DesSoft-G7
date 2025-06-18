@@ -33,8 +33,6 @@ export default function Pets() {
     setLoading(false);
   }, []);
 
-  if (loading) return <Spinner size="large" />;
-
   return (
     <View style={styles.container}>
       {mascotas.map((m, index) => (
