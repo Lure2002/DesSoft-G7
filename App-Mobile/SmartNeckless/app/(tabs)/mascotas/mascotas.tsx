@@ -6,14 +6,17 @@ import { useAuth } from '@/context/AuthContext';
 import CreateMascotaCard from '@/components/CreateMascotaCard';
 import Toast from 'react-native-toast-message';
 import API from '@/services/apiSmartNeckless';
+import { Spinner } from 'phosphor-react-native';
 
 export default function Pets() {
   const theme = useTheme();
   const styles = createStyles(theme);
   const { user, updateUser } = useAuth();
   const [mascotas, setMascotas] = useState(user?.mascotas || []);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setLoading(true);
     API.getMascotas(user?.id)
       .then((response) => {
         setMascotas(response.body);
@@ -29,7 +32,7 @@ export default function Pets() {
       });
   }, []);
 
-  
+  if (loading) return <Spinner size="large" />;
 
   return (
     <View style={styles.container}>
