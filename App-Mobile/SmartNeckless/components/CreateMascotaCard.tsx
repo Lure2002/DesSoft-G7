@@ -121,9 +121,9 @@ export default function CreateMascotaCard() {
 
                   <View style={{ alignItems: 'center' }}>
                     {
-                      form.especie == 'Perro' ?
+                      form.especie == '1' ?
                         (<Image source={require("@/assets/images/perro.jpg")} style={styles.modalImage} />) : 
-                        (form.especie == 'Gato' ?
+                        (form.especie == '2' ?
                           (<Image source={require("@/assets/images/gato.jpeg")} style={styles.modalImage} />) :
                           (<View style={[styles.modalImage, styles.placeholder]}>
                             <Plus size={32} color="#888" />
@@ -188,6 +188,7 @@ export default function CreateMascotaCard() {
                     <Pressable
                       style={styles.actionButton}
                       onPress={() => {
+                        console.log("form", form)
                         if (!form.nombre || !form.especie) {
                           Toast.show({
                             type: 'error',
@@ -196,12 +197,13 @@ export default function CreateMascotaCard() {
                           });
                           return;
                         }
-
+                        console.log("valido")
                         if (!form.nombre || !form.especie) {
                           alert('Nombre y especie son obligatorios'); // Mensaje de error
                           return; // Detiene la ejecución si falta algún campo
                         }
-                        API.crearMascota(form.nombre, form.especie, form.raza, form.sexo, user?.id)
+                        console.log("user", user)
+                        API.crearMascota(form.nombre, Number(form.especie), Number(form.raza), form.sexo, user?.id)
                         handleCloseModal(); // Cierra el modal solo si pasa la validación
                         // Mostrar mensaje de éxito
                         Toast.show({

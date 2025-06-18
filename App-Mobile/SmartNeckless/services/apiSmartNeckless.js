@@ -58,7 +58,7 @@ async function getMascota(id, idMascota) {
 }
 
 async function crearMascota(nombre, especie, raza, sexo, id_user) {
-  return fetch("https://dessoft-g7-ykag.onrender.com/mascotas", {
+  return fetch("https://dessoft-g7-ykag.onrender.com/mascota", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

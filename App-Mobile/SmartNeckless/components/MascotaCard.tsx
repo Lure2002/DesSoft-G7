@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/context/ThemeContext';
-import { Dog, Cat, Heart, MapPin, ArrowRight, Warning } from 'phosphor-react-native';
+import { Dog, Cat, Heart, MapPin, ArrowRight, Thermometer } from 'phosphor-react-native';
 import { Mascota } from '@/context/AuthContext';
 
 interface Props {
@@ -50,7 +50,7 @@ export default function MascotaCard({ mascota }: Props) {
           </View>
 
           <View style={styles.statusItem}>
-            <Warning size={16} color="#ffa502" />
+            <Thermometer size={16} color="#5099ff" />
             <Text style={styles.statusText}>{mascota.temperatura}</Text>
           </View>
 

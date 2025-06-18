@@ -29,6 +29,8 @@ export default function Pets() {
       });
   }, []);
 
+  
+
   return (
     <View style={styles.container}>
       {mascotas.map((m, index) => (
