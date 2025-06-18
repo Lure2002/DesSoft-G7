@@ -151,7 +151,7 @@ app.post('/mascota', async (req, res) => {
       id_especie,
       id_user,
       pulsaciones,
-      estado,
+      temperatura,
       latitud,
       longitud,
       sexo
@@ -161,7 +161,7 @@ app.post('/mascota', async (req, res) => {
       data: {
         nombre,
         pulsaciones,
-        estado,
+        temperatura,
         latitud,
         longitud,
         sexo,
@@ -195,9 +195,12 @@ app.delete('/mascotas/:id', async (req, res) => {
   }
 });
 
-app.get('/razas', async (req, res) => {
+app.get('/razas/:idEspecie', async (req, res) => {
   try {
-    const razas = await prisma.raza.findMany();
+    const { idEspecie } = req.params;
+    const razas = prisma.raza.findMany({
+      where: { id_especie: Number(idEspecie) }
+    });
     return response(res, 200, 'OK', razas);
   } catch (error) {
     return response(res, 500, 'Internal Server Error', { error: error.message });
