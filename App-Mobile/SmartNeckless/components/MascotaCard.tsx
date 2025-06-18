@@ -27,7 +27,7 @@ export default function MascotaCard({ mascota }: Props) {
   const [mascotaActual, setMascotaActual] = useState(mascota);
 
   const handleNavigate = () => router.push({
-    pathname: "/mascotas/[id]",
+    pathname: "/(tabs)/mascotas/[id]",
     params: { id: mascotaActual.id.toString() },
   });;
 
