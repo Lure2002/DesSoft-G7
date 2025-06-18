@@ -54,10 +54,9 @@ export default function CreateMascotaCard({ onMascotaCreada }: Props) {
     setModalVisible(false);
     setForm({ nombre: '', especie: '', sexo: '', raza: '' });
   };
-
   useEffect(() => {
     setLoading(true);
-    API.getEspecies().then(response => setEspecies(response.body.map((especie: { nombre: string, id:number}) => {return {label: especie.nombre, value: especie.id}})))
+    API.getEspecies().then(response => setEspecies(response.body.map((especie: any, index:number) => {return {label: especie.nombre, value: especie.id}})))
     if (form.especie) {
       API.getRazas(form.especie).then(response => setRazas(response))
     }
@@ -127,17 +126,19 @@ export default function CreateMascotaCard({ onMascotaCreada }: Props) {
                       onChangeText={(text) => setForm({ ...form, nombre: text })}
                     />
                     <RNPickerSelect
+                      style={{ placeholder:{color: isDark ? '#fff' : '#000'} }}
                       placeholder="Seleccionar Sexo"
                       value={form.sexo}
                       onValueChange={(itemValue: string) => setForm({ ...form, sexo: itemValue })}
                       items={[
-                        {label:"Seleccionar Sexo", value:""},
-                        {label:"Macho", value:"MACHO"},
-                        {label:"Hembra", value:"HEMBRA"}
+                        {label:"Seleccionar Sexo", value:"", key: 1},
+                        {label:"Macho", value:"MACHO", key: 2},
+                        {label:"Hembra", value:"HEMBRA", key: 3}
                       ]}
                     >
                     </RNPickerSelect>
                     <RNPickerSelect
+                      style={{ placeholder:{color: isDark ? '#fff' : '#000'} }}
                       placeholder="Seleccionar Especie"
                       value={form.especie}
                       onValueChange={(itemValue: string) => setForm({ ...form, especie: itemValue })}
@@ -145,6 +146,7 @@ export default function CreateMascotaCard({ onMascotaCreada }: Props) {
                     >
                     </RNPickerSelect>
                     <RNPickerSelect
+                      style={{ placeholder:{color: isDark ? '#fff' : '#000'} }}
                       placeholder="Seleccionar Raza"
                       value={form.raza}
                       onValueChange={(itemValue: string) => setForm({ ...form, raza: itemValue })}
