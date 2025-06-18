@@ -192,5 +192,23 @@ app.delete('/mascotas/:id', async (req, res) => {
   }
 });
 
+app.get('/razas', async (req, res) => {
+  try {
+    const razas = await prisma.raza.findMany();
+    return response(res, 200, 'OK', razas);
+  } catch (error) {
+    return response(res, 500, 'Internal Server Error', { error: error.message });
+  }
+});
+
+app.get('/especies', async (req, res) => {
+  try {
+    const especies = await prisma.especie.findMany();
+    return response(res, 200, 'OK', especies);
+  } catch (error) {
+    return response(res, 500, 'Internal Server Error', { error: error.message });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`API escuchando en http://localhost:${PORT}`));
