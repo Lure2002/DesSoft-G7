@@ -17,6 +17,7 @@ import RNPickerSelect from 'react-native-picker-select';
 import { ItemValue } from '@react-native-picker/picker/typings/Picker';
 import API from '@/services/apiSmartNeckless';
 import { useAuth } from '@/context/AuthContext';
+import {Picker} from '@react-native-picker/picker';
 
 interface Mascota {
   nombre: string;
@@ -56,12 +57,16 @@ export default function CreateMascotaCard({ onMascotaCreada }: Props) {
     setForm({ nombre: '', especie: '', sexo: '', raza: '' });
   };
   useEffect(() => {
+    if (especies.length > 0) return; // Evita recargar si ya hay especies
     setLoading(true);
-    if (especies.length == 0) {
-      API.getEspecies().then(response => setEspecies(response.body.map((especie: any, index:number) => {return {label: especie.nombre, value: especie.id, key: especie.id}})))
-    }
+    API.getEspecies().then(response => setEspecies(response.body.map((especie: any) => {return {label: especie.nombre, value: especie.id, key: especie.id}})))
+    setLoading(false);
+  }, []);
+  
+  useEffect(() => {
+    setLoading(true);
     if (form.especie) {
-      API.getRazas(form.especie).then(response => setRazas(response.body.map((raza: any, index:number) => {return {label: raza.nombre, value: raza.id, key: raza.id}})))
+      API.getRazas(form.especie).then(response => setRazas(response.body.map((raza: any) => {return {label: raza.nombre, value: raza.id, key: raza.id}})))
     }
     setLoading(false);
   }, [form.especie]);
@@ -128,24 +133,27 @@ export default function CreateMascotaCard({ onMascotaCreada }: Props) {
                       value={form.nombre}
                       onChangeText={(text) => setForm({ ...form, nombre: text })}
                     />
-                    <RNPickerSelect
-                      style={{ placeholder:{color: isDark ? '#fff' : '#000'} }}
-                      placeholder={{label:"Seleccionar Sexo", value:"", key: ""}}
-                      value={form.sexo}
+                    <Picker style={styles.input}
+                      // style={{ placeholder:{color: isDark ? '#fff' : '#000'} }}
+                      // placeholder={{label:"Seleccionar Sexo", value:"", key: ""}}
+                      // value={form.sexo}
+                      selectedValue={form.sexo}
                       onValueChange={(itemValue: string) => setForm({ ...form, sexo: itemValue })}
-                      items={[
-                        {label:"Seleccionar Sexo", value:"", key: ""},
-                        {label:"Macho", value:"MACHO", key: "MACHO"},
-                        {label:"Hembra", value:"HEMBRA", key: "HEMBRA"}
-                      ]}
+                      // items={[
+                      //   {label:"Macho", value:"MACHO", key: "MACHO"},
+                      //   {label:"Hembra", value:"HEMBRA", key: "HEMBRA"}
+                      // ]}
                     >
-                    </RNPickerSelect>
+                      <Picker.Item label="Seleccionar Sexo" value="" key="" />
+                      <Picker.Item label="Macho" value="MACHO" key="MACHO" />
+                      <Picker.Item label="Hembra" value="HEMBRA" key="HEMBRA" />
+                    </Picker>
                     <RNPickerSelect
                       style={{ placeholder:{color: isDark ? '#fff' : '#000'} }}
                       placeholder={{label:"Seleccionar Especie", value:"", key: ""}}
                       value={form.especie}
                       onValueChange={(itemValue: string) => setForm({ ...form, especie: itemValue })}
-                      items={[{label:"Seleccionar Especie", value:"", key: ""},...especies]}
+                      items={[...especies]}
                     >
                     </RNPickerSelect>
                     <RNPickerSelect
@@ -153,7 +161,7 @@ export default function CreateMascotaCard({ onMascotaCreada }: Props) {
                       placeholder={{label:"Seleccionar Raza", value:"", key: ""}}
                       value={form.raza}
                       onValueChange={(itemValue: string) => setForm({ ...form, raza: itemValue })}
-                      items={[{label:"Seleccionar Raza", value:"", key: ""},...razas]}
+                      items={[...razas]}
                     >
                     </RNPickerSelect>
                     <Pressable
