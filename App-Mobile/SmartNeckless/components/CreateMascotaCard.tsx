@@ -44,6 +44,7 @@ export default function CreateMascotaCard({ onMascotaCreada }: Props) {
   const [razas, setRazas] = useState<SelectItem[]>([]);
   const [especies, setEspecies] = useState<SelectItem[]>([])
   const [modalVisible, setModalVisible] = useState(false);
+  const user = useAuth().user;
   const [form, setForm] = useState({
     nombre: '',
     especie: '',
@@ -184,7 +185,6 @@ export default function CreateMascotaCard({ onMascotaCreada }: Props) {
                     <Pressable
                       style={styles.actionButton}
                       onPress={() => {
-                        const user = useAuth().user;
                         if (!form.nombre || !form.especie) {
                           Toast.show({
                             type: 'error',
