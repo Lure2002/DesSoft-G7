@@ -1,4 +1,4 @@
-import { useLocalSearchParams, useNavigation } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { View, Text, StyleSheet, Image } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { Heart, Thermometer } from 'phosphor-react-native';
@@ -8,7 +8,6 @@ export default function DetalleMascota() {
     const { id } = useLocalSearchParams();
     const theme = useTheme();
     const styles = createStyles(theme === 'dark');
-    const navigation = useNavigation();
     // Valores hardcodeados
     const nombre = "Rocky";
     const bpm = 85;
@@ -66,6 +65,7 @@ const createStyles = (isDark: boolean) => {
             objectFit: 'cover'
         },
         nombre: {
+            color: isDark ? '#fff' : '#000',
             fontSize: 24,
             fontWeight: 'bold',
         },
