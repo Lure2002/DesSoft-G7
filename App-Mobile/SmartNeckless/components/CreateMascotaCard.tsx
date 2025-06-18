@@ -16,6 +16,7 @@ import { KeyboardAvoidingView, Platform, ScrollView, TouchableWithoutFeedback, K
 import RNPickerSelect from 'react-native-picker-select';
 import { ItemValue } from '@react-native-picker/picker/typings/Picker';
 import API from '@/services/apiSmartNeckless';
+import { useAuth } from '@/context/AuthContext';
 
 interface Mascota {
   nombre: string;
@@ -32,6 +33,7 @@ interface Props {
 interface SelectItem {
   label: string;
   value: string;
+  key: number;
 }
 
 export default function CreateMascotaCard({ onMascotaCreada }: Props) {
@@ -47,7 +49,6 @@ export default function CreateMascotaCard({ onMascotaCreada }: Props) {
     sexo: '',
     raza: '',
   });
-  const [imagen, setImagen] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const handleOpenModal = () => setModalVisible(true);
   const handleCloseModal = () => {
@@ -56,9 +57,9 @@ export default function CreateMascotaCard({ onMascotaCreada }: Props) {
   };
   useEffect(() => {
     setLoading(true);
-    API.getEspecies().then(response => setEspecies(response.body.map((especie: any, index:number) => {return {label: especie.nombre, value: especie.id}})))
+    API.getEspecies().then(response => setEspecies(response.body.map((especie: any, index:number) => {return {label: especie.nombre, value: especie.id, key: index+1}})))
     if (form.especie) {
-      API.getRazas(form.especie).then(response => setRazas(response))
+      API.getRazas(form.especie).then(response => setRazas(response.body.map((raza: any, index:number) => {return {label: raza.nombre, value: raza.id, key: index+1}})))
     }
     setLoading(false);
   }, []);
@@ -131,9 +132,9 @@ export default function CreateMascotaCard({ onMascotaCreada }: Props) {
                       value={form.sexo}
                       onValueChange={(itemValue: string) => setForm({ ...form, sexo: itemValue })}
                       items={[
-                        {label:"Seleccionar Sexo", value:"", key: 1},
-                        {label:"Macho", value:"MACHO", key: 2},
-                        {label:"Hembra", value:"HEMBRA", key: 3}
+                        {label:"Seleccionar Sexo", value:"", key: 0},
+                        {label:"Macho", value:"MACHO", key: 1},
+                        {label:"Hembra", value:"HEMBRA", key: 2}
                       ]}
                     >
                     </RNPickerSelect>
@@ -142,7 +143,7 @@ export default function CreateMascotaCard({ onMascotaCreada }: Props) {
                       placeholder="Seleccionar Especie"
                       value={form.especie}
                       onValueChange={(itemValue: string) => setForm({ ...form, especie: itemValue })}
-                      items={[{label:"Seleccionar Especie", value:""}]}
+                      items={[{label:"Seleccionar Especie", value:"", key: 0},...especies]}
                     >
                     </RNPickerSelect>
                     <RNPickerSelect
@@ -150,12 +151,13 @@ export default function CreateMascotaCard({ onMascotaCreada }: Props) {
                       placeholder="Seleccionar Raza"
                       value={form.raza}
                       onValueChange={(itemValue: string) => setForm({ ...form, raza: itemValue })}
-                      items={[{label:"Seleccionar Raza", value:""}]}
+                      items={[{label:"Seleccionar Raza", value:"", key: 0},...razas]}
                     >
                     </RNPickerSelect>
                     <Pressable
                       style={styles.actionButton}
                       onPress={() => {
+                        const user = useAuth().user;
                         if (!form.nombre || !form.especie) {
                           Toast.show({
                             type: 'error',
@@ -168,7 +170,6 @@ export default function CreateMascotaCard({ onMascotaCreada }: Props) {
                         // Crear el objeto mascota
                         const nuevaMascota = {
                           ...form,
-                          imagen: imagen || undefined
                         };
 
                         // Llamar a la función callback
@@ -188,7 +189,7 @@ export default function CreateMascotaCard({ onMascotaCreada }: Props) {
                           alert('Nombre y especie son obligatorios'); // Mensaje de error
                           return; // Detiene la ejecución si falta algún campo
                         }
-                        console.log('Enviar mascota:', { ...form, imagen }); // Simula envío a API
+                        API.crearMascota(nuevaMascota.nombre, nuevaMascota.especie, nuevaMascota.raza, nuevaMascota.sexo, user?.id)
                         handleCloseModal(); // Cierra el modal solo si pasa la validación
                       }}
                     >
